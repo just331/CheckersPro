@@ -1,2 +1,2 @@
 # CheckersPro
-CS5392 Reinforcement Learning: Project 
+CS5392 Reinforcement Learning: Semester Project
