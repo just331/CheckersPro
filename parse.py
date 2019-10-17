@@ -48,7 +48,7 @@ def getGames(raw_txt):
         else:
             gameList.append(tempString)
             tempString = ''
-    return gameLis
+    return gameList
 
 def parseMoves(moves):
     # moves is a multi-line string. Need to standardize the string where there are only moves separated by a space
