@@ -90,9 +90,130 @@ def printBoard(activeBoard, agentColor):
         print("\n")
 
 
-def checkForJumps(activeBoard, active):  # Need to work on this
+def checkForJumps(activeBoard, active, agentColor):  # Need to work on this
     # A player MUST make a jump if they can (and double jumps)
-    print("TODO")
+    '''
+        check if an enemy piece is within a move cell of a friendly piece
+        If yes: Check if the piece can be jumped (check if edge cell and check if there is a space to jump)
+        If abs(target_cell_num - current_cell_num) == 3, empty_cell_check = target_cell_num + 4
+        If abs(target_cell_num - current_cell_num) == 5, empty_cell_check = target_cell_num + 4
+        If abs(target_cell_num - current_cell_num) == 4
+            If target_cell_num in target_3: empty_cell_check = target_cell_num + 3
+            If target_cell_num in target_5: empty_cell_check = target_cell_num + 5
+        Check if this jump resulted in a king
+        Check for new jumps
+        repeat until the SAME piece has no more jumps
+    '''
+    target_3 = [5, 6, 7, 13, 14, 15, 21, 22, 23]
+    target_5 = [8, 9, 10, 16, 17, 18, 24, 25, 26, 31]
+
+    # Check for jumps that the player must make
+    if active == "player":
+        found_jump = False
+        for cellNum in range(len(activeBoard)):
+            # Current piece is a friendly man ... Check for jumps
+            if activeBoard[cellNum] == value_dic["enemyMan"]:
+                # Checking the moves for the current piece
+                if agentColor == "black":
+                    possibleJumps = whiteMoves[cellNum]
+                else:
+                    possibleJumps = blackMoves[cellNum]
+                # Cycle through the cells that this piece could move to
+                for p_Target in possibleJumps:
+                    # See if one of the cells contains an enemy piece and that piece is not on an edge cell
+                    if (activeBoard[p_Target] == value_dic["ownMan"] or activeBoard[p_Target] == value_dic["ownKing"]) \
+                        and (p_Target not in edgeCells):
+                            # There is a bordering enemy piece, see if it can be jumped
+                            jumpDif = abs(cellNum-p_Target)
+                            if cellNum-p_Target > 0:
+                                jumpDifSign = "-"
+                            else:
+                                jumpDifSign = "+"
+                            # There are three possible jump patterns
+                            if jumpDif == 3 or jumpDif == 5:
+                                checkNum = 4
+                            elif jumpDif == 4:
+                                if p_Target in target_3:
+                                    if jumpDifSign == "+":
+                                        checkNum = 3
+                                    else:
+                                        checkNum = 5
+                                elif p_Target in target_5:
+                                    if jumpDifSign == "+":
+                                        checkNum = 5
+                                    else:
+                                        checkNum = 3
+                            if jumpDifSign == "-":
+                                checkNum = checkNum * -1
+                            new_move = p_Target + checkNum
+                            if activeBoard[new_move] == 0:
+                                found_jump = True
+                                old_square, remove, new_squre = cellNum, p_Target, new_move
+                                break
+            # Current piece is a friendly king ... Check for jumps
+            elif activeBoard[cellNum] == value_dic["enemyKing"]:
+                print("TODO")
+        if found_jump == True:
+            temp = activeBoard[old_square]
+            activeBoard[old_square] = 0
+            activeBoard[remove] = 0
+            activeBoard[new_squre] = temp
+            activeBoard = checkForKing(activeBoard, agentColor)
+        return found_jump, activeBoard
+    # Check for jumps that the agent must make
+    elif active == "agent":
+        found_jump = False
+        for cellNum in range(len(activeBoard)):
+            # Current piece is a friendly man ... Check for jumps
+            if activeBoard[cellNum] == value_dic["ownMan"]:
+                # Checking the moves for the current piece
+                if agentColor == "black":
+                    possibleJumps = blackMoves[cellNum]
+                else:
+                    possibleJumps = whiteMoves[cellNum]
+                # Cycle through the cells that this piece could move to
+                for p_Target in possibleJumps:
+                    # See if one of the cells contains an enemy piece and that piece is not on an edge cell
+                    if (activeBoard[p_Target] == value_dic["enemyMan"] or activeBoard[p_Target] == value_dic["enemyKing"]) \
+                            and (p_Target not in edgeCells):
+                        # There is a bordering enemy piece, see if it can be jumped
+                        jumpDif = abs(cellNum-p_Target)
+                        if cellNum-p_Target > 0:
+                            jumpDifSign = "-"
+                        else:
+                            jumpDifSign = "+"
+                        # There are three possible jump patterns
+                        if jumpDif == 3 or jumpDif == 5:
+                            checkNum = 4
+                        elif jumpDif == 4:
+                            if p_Target in target_3:
+                                if jumpDifSign == "+":
+                                    checkNum = 3
+                                else:
+                                    checkNum = 5
+                            elif p_Target in target_5:
+                                if jumpDifSign == "+":
+                                    checkNum = 5
+                                else:
+                                    checkNum = 3
+                        if jumpDifSign == "-":
+                            checkNum = checkNum * -1
+                        new_move = p_Target + checkNum
+                        if activeBoard[new_move] == 0:
+                            found_jump = True
+                            old_square, remove, new_squre = cellNum, p_Target, new_move
+                            break
+            # Current piece is a friendly king ... Check for jumps
+            elif activeBoard[cellNum] == value_dic["ownKing"]:
+                print("TODO")
+        if found_jump == True:
+            temp = activeBoard[old_square]
+            activeBoard[old_square] = 0
+            activeBoard[remove] = 0
+            activeBoard[new_squre] = temp
+            activeBoard = checkForKing(activeBoard, agentColor)
+
+        return found_jump, activeBoard
 
 
 def chooseMove(activeBoard, agentColor):
@@ -139,23 +260,59 @@ def checkMove(activeBoard, u_move, playerColor):
     return True
 
 
-def checkForKing():
-    print("TODO")
+def checkForKing(activeBoard, agentColor):  # status: Done
+    # Cycle through all cells on the board
+    for cellNum in range(len(activeBoard)):
+        # If we find a normal 'man' piece that belongs to the agent
+        if activeBoard[cellNum] == value_dic["ownMan"]:
+            # Check if this piece is in the end zone
+            if agentColor == "black":
+                if cellNum in whiteEndZone:
+                    # If so, King it
+                    activeBoard[cellNum] = value_dic["ownKing"]
+            else:
+                if cellNum in blackEndZone:
+                    activeBoard[cellNum] = value_dic["ownKing"]
+        # Found a player's man
+        elif activeBoard[cellNum] == value_dic["enemyMan"]:
+            # Check if this piece is in the end zone
+            if agentColor == "black":
+                if cellNum in blackEndZone:
+                    # If so, King it
+                    activeBoard[cellNum] = value_dic["enemyKing"]
+            else:
+                if cellNum in whiteEndZone:
+                    activeBoard[cellNum] = value_dic["enemyKing"]
+
+    return activeBoard
 
 
-def CheckGameOver():
-    print("TODO")
+def CheckGameOver(activeBoard):  # status: Done
+
+    agentWin = True
+    playerWin = True
+    for cellNum in range(len(activeBoard)):
+        # If a player piece is found the agent did not win
+        if activeBoard[cellNum] == value_dic["enemyMan"] or activeBoard[cellNum] == value_dic["enemyKing"]:
+            agentWin = False
+        elif activeBoard[cellNum] == value_dic["ownMan"] or activeBoard[cellNum] == value_dic["ownKing"]:
+            playerWin = False
+
+    if agentWin:
+        return True, "Sorry you lost :("
+    elif playerWin:
+        return True, "You Won!!"
+    else:
+        return False, "N/A"
 
 
 def main():
     '''
     TODO:
         Create a GUI instead of inline
-        Streamline the available moves
-        Create CheckForJumps function
-        Create CheckForKing using the EndZone lists at the top of the code
-        create CheckForGameEnd see if only one color is left
-        Currently I the agent always goes first,
+        Streamline the available moves and several parts of the code ... Kinda messy but works
+        Currently when there is a jump I just choose a random. However the active player should be able to choose
+        Currently the agent always goes first,
             This needs to be changed so that whoever is black goes first
     '''
     player_color = input("What Color do you want to be? (type 'b' or 'w')")
@@ -167,36 +324,55 @@ def main():
         agentColor = 'black'
         activeGame = startGame(agentColor)
 
-
+    print("Game is Starting")
+    printBoard(activeGame, agentColor)
+    # TODO: Agent is always going first, but Black should only go first
     while(True):
-        # Show the board
-        printBoard(activeGame, agentColor)
         # Let agent go
         # Check for jumps and force them
-        # Let agent take a move
-        activeGame = chooseMove(activeGame,agentColor)
-        # Print board
-        print("---------------------------------------")
-        printBoard(activeGame, agentColor)
-        print("---------------------------------------")
-        # Check for jumps
+        activeGame = checkForKing(activeGame, agentColor)  # See if these jumps resulted in a king
+        foundJump, activeGame = checkForJumps(activeGame, "agent", agentColor)
+        if foundJump:
+            print("---------------------------------------")
+            printBoard(activeGame, agentColor)
+            print("---------------------------------------")
+        else:
+            activeGame = chooseMove(activeGame,agentColor)
+            activeGame = checkForKing(activeGame, agentColor)  # See if the move resulted in a king
+            # Print board
+            print("---------------------------------------")
+            printBoard(activeGame, agentColor)
+            print("---------------------------------------")
         # Let player take move
-        u_move = input("Enter start cell and end cell: '# #'")
-        user_move = u_move.split(" ")
-        validMove = False
-        # Make sure move is valid
-        while(not validMove):
-            validMove = checkMove(activeGame, user_move, player_color)
-            if not validMove:
-                u_move = input("Enter start cell and end cell: '# #'")
-                user_move = u_move.split(" ")
-        # Update board with user's move
-        for i in range(len(user_move)):
-            user_move[i] = int(user_move[i])
-        temp_value = activeGame[user_move[0]]
-        activeGame[user_move[0]] = 0
-        activeGame[user_move[1]] = temp_value
-        # Print board
-        printBoard(activeGame, agentColor)
-        print("---------------------------------------")
+        # Check for jump and force them
+        foundJump, activeGame = checkForJumps(activeGame, "player", agentColor)
+        if foundJump:
+            print("---------------------------------------")
+            printBoard(activeGame, agentColor)
+            print("---------------------------------------")
+        else:
+            u_move = input("Enter start cell and end cell: '# #'")
+            user_move = u_move.split(" ")
+            validMove = False  # Assume the move is invalid
+            # Make sure move is valid
+            while(not validMove):
+                validMove = checkMove(activeGame, user_move, player_color)  # Check if the move is valid
+                if not validMove:
+                    u_move = input("You did a bad job...Enter start cell and end cell: '# #'")
+                    user_move = u_move.split(" ")
+            # Convert move numbers (strings) as actual ints
+            for i in range(len(user_move)):
+                user_move[i] = int(user_move[i])
+            # Update board with user's move  -- The section below COULD be moved into a function later
+            temp_value = activeGame[user_move[0]]  # Collect the piece info at the old cell
+            activeGame[user_move[0]] = 0           # Remove the piece from the old cell
+            activeGame[user_move[1]] = temp_value  # Move the piece to the new cell
+            activeGame = checkForKing(activeGame, agentColor)  # See if this move resulted in a king
+            # Print board
+            printBoard(activeGame, agentColor)
+            print("---------------------------------------")
         # See if game is over
+        gameOver, message = CheckGameOver(activeGame)
+        if gameOver:
+          print(message)
+          break
