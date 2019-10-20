@@ -379,6 +379,7 @@ def main():
         Create a GUI instead of inline
         Streamline the available moves and several parts of the code ... Kinda messy but works
         Currently when there is a jump I just choose a random. However the active player should be able to choose
+            The jump function needs to account for double jumping and kings happening in between jumps
         Currently the agent always goes first,
             This needs to be changed so that whoever is black goes first
     '''
