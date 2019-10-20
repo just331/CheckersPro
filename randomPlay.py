@@ -152,7 +152,40 @@ def checkForJumps(activeBoard, active, agentColor):  # Need to work on this
                                 break
             # Current piece is a friendly king ... Check for jumps
             elif activeBoard[cellNum] == value_dic["enemyKing"]:
-                print("TODO")
+                # Checking the moves for the current piece
+                possibleJumps = kingMoves[cellNum]
+                # Cycle through the cells that this piece could move to
+                for p_Target in possibleJumps:
+                    # See if one of the cells contains an enemy piece and that piece is not on an edge cell
+                    if (activeBoard[p_Target] == value_dic["ownMan"] or activeBoard[p_Target] == value_dic["ownKing"]) \
+                        and (p_Target not in edgeCells):
+                            # There is a bordering enemy piece, see if it can be jumped
+                            jumpDif = abs(cellNum-p_Target)
+                            if cellNum-p_Target > 0:
+                                jumpDifSign = "-"
+                            else:
+                                jumpDifSign = "+"
+                            # There are three possible jump patterns
+                            if jumpDif == 3 or jumpDif == 5:
+                                checkNum = 4
+                            elif jumpDif == 4:
+                                if p_Target in target_3:
+                                    if jumpDifSign == "+":
+                                        checkNum = 3
+                                    else:
+                                        checkNum = 5
+                                elif p_Target in target_5:
+                                    if jumpDifSign == "+":
+                                        checkNum = 5
+                                    else:
+                                        checkNum = 3
+                            if jumpDifSign == "-":
+                                checkNum = checkNum * -1
+                            new_move = p_Target + checkNum
+                            if activeBoard[new_move] == 0:
+                                found_jump = True
+                                old_square, remove, new_squre = cellNum, p_Target, new_move
+                                break
         if found_jump == True:
             temp = activeBoard[old_square]
             activeBoard[old_square] = 0
@@ -205,7 +238,41 @@ def checkForJumps(activeBoard, active, agentColor):  # Need to work on this
                             break
             # Current piece is a friendly king ... Check for jumps
             elif activeBoard[cellNum] == value_dic["ownKing"]:
-                print("TODO")
+                # Checking the moves for the current piece
+                possibleJumps = kingMoves[cellNum]
+                # Cycle through the cells that this piece could move to
+                for p_Target in possibleJumps:
+                    # See if one of the cells contains an enemy piece and that piece is not on an edge cell
+                    if (activeBoard[p_Target] == value_dic["enemyMan"] or activeBoard[p_Target] == value_dic["enemyKing"]) \
+                            and (p_Target not in edgeCells):
+                        # There is a bordering enemy piece, see if it can be jumped
+                        jumpDif = abs(cellNum-p_Target)
+                        if cellNum-p_Target > 0:
+                            jumpDifSign = "-"
+                        else:
+                            jumpDifSign = "+"
+                        # There are three possible jump patterns
+                        if jumpDif == 3 or jumpDif == 5:
+                            checkNum = 4
+                        elif jumpDif == 4:
+                            if p_Target in target_3:
+                                if jumpDifSign == "+":
+                                    checkNum = 3
+                                else:
+                                    checkNum = 5
+                            elif p_Target in target_5:
+                                if jumpDifSign == "+":
+                                    checkNum = 5
+                                else:
+                                    checkNum = 3
+                        if jumpDifSign == "-":
+                            checkNum = checkNum * -1
+                        new_move = p_Target + checkNum
+                        if activeBoard[new_move] == 0:
+                            found_jump = True
+                            old_square, remove, new_squre = cellNum, p_Target, new_move
+                            break
+
         if found_jump == True:
             temp = activeBoard[old_square]
             activeBoard[old_square] = 0
