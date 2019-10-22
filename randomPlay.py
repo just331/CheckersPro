@@ -51,7 +51,29 @@ def startGame(color):
     return returnBoard
 
 
-def printBoard(activeBoard, agentColor):
+def findTextValue(activeBoard, cellCount, agentColor):
+    if agentColor == "black":
+        if activeBoard[cellCount] == value_dic["ownMan"]:
+            return "B"
+        elif activeBoard[cellCount] == value_dic["ownKing"]:
+            return "BK"
+        elif activeBoard[cellCount] == value_dic["enemyMan"]:
+            return "W"
+        elif activeBoard[cellCount] == value_dic["enemyKing"]:
+            return "WK"
+    else:
+        if activeBoard[cellCount] == value_dic["ownMan"]:
+            return "W"
+        elif activeBoard[cellCount] == value_dic["ownKing"]:
+            return "WK"
+        elif activeBoard[cellCount] == value_dic["enemyMan"]:
+            return "B"
+        elif activeBoard[cellCount] == value_dic["enemyKing"]:
+            return "BK"
+    return ""
+
+
+def printBoard(activeBoard, agentColor):  # This will no longer be needed
     cell_num = 0
     blank = True
     for i in range(8):
@@ -90,7 +112,7 @@ def printBoard(activeBoard, agentColor):
         print("\n")
 
 
-def checkForJumps(activeBoard, active, agentColor):  # Need to work on this
+def checkForJumps(activeBoard, active, agentColor):  # Need to include double jump logic
     # A player MUST make a jump if they can (and double jumps)
     '''
         check if an enemy piece is within a move cell of a friendly piece
@@ -376,10 +398,10 @@ def CheckGameOver(activeBoard):  # status: Done
 def main():
     '''
     TODO:
-        Create a GUI instead of inline
+        Optimize and tweak GUI
         Streamline the available moves and several parts of the code ... Kinda messy but works
         Currently when there is a jump I just choose a random. However the active player should be able to choose
-            The jump function needs to account for double jumping and kings happening in between jumps
+            The jump function needs to account for double jumping
         Currently the agent always goes first,
             This needs to be changed so that whoever is black goes first
     '''
