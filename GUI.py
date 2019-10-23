@@ -19,11 +19,18 @@ def playerLogic(cellCount, master, activeGame, agentColor):
         startCell = cellCount
     else:
         endCell = cellCount
-        foundJump, activeGame = checkForJumps(activeGame, "player", agentColor)
-        if foundJump:
-            startCell, endCell = -1, -1  # Reset temp values
-            printGUI(master, activeGame, agentColor)
-            agentLogic(master, activeGame, agentColor)
+        avaliableJumps = checkForJumps(activeGame, "player", agentColor)
+        if len(avaliableJumps) > 0:  # There is a jump
+            validJump = False
+            for i in range(len(avaliableJumps)):
+                if avaliableJumps[i][0] == startCell and avaliableJumps[i][2] == endCell:
+                    activeGame = jumpUpdate(activeGame, avaliableJumps[i][0], avaliableJumps[i][1], avaliableJumps[i][2], agentColor)
+                    validJump = True
+                    startCell, endCell = -1, -1  # Reset temp values
+                    printGUI(master, activeGame, agentColor)
+                    agentLogic(master, activeGame, agentColor)
+            if not validJump:
+                print("TODO: Fix invalid moves")
         else:
             user_move = [startCell, endCell]
             validMove = False  # Assume the move is invalid
@@ -31,9 +38,7 @@ def playerLogic(cellCount, master, activeGame, agentColor):
             while(not validMove):
                 validMove = checkMove(activeGame, user_move, playerColor)  # Check if the move is valid
                 if not validMove:
-                    print("You did a bad job...Enter start cell and end cell: '# #'")
-                    startCell, endCell = -1, -1  # Reset temp values
-                    printGUI(master, activeGame, agentColor)
+                    print("TODO: Fix invalid moves")
             # Valid move
             temp_value = activeGame[user_move[0]]  # Collect the piece info at the old cell
             activeGame[user_move[0]] = 0           # Remove the piece from the old cell
@@ -49,13 +54,17 @@ def playerLogic(cellCount, master, activeGame, agentColor):
 # TODO: Jumps are forced and choose randomly ... Should let agent decide
 def agentLogic(master, activeGame, agentColor):
     activeGame = checkForKing(activeGame, agentColor)  # See if these jumps resulted in a king
-    foundJump, activeGame = checkForJumps(activeGame, "agent", agentColor)
-    if foundJump:
-        printGUI(master, activeGame, agentColor)
-    else:
-        activeGame = chooseMove(activeGame, agentColor)
-        activeGame = checkForKing(activeGame, agentColor)  # See if the move resulted in a king
-        printGUI(master, activeGame, agentColor)
+    possibleJumps = checkForJumps(activeGame, "agent", agentColor)  # Find all possible jumps
+    possibleMoves = findMoves(activeGame, agentColor)
+    # TODO: Maybe allow agent to choose to not make a jump and give punishment
+    if len(possibleJumps) > 0:
+        move = random.choice(possibleJumps)
+        activeGame = jumpUpdate(activeGame, move[0], move[1], move[2], agentColor)
+    else:  # No jumps avaliable
+        move = random.choice(possibleMoves)
+        activeGame[move[0]] = 0
+        activeGame[move[1]] = move[2]
+    printGUI(master, activeGame, agentColor)
 
 
 def printGUI(master, activeGame, agentColor):

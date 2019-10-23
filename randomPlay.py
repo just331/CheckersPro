@@ -112,6 +112,47 @@ def printBoard(activeBoard, agentColor):  # This will no longer be needed
         print("\n")
 
 
+def landSpace(cellNum, p_Target):
+    # This is kinda hard to explain but is needed for determining legal jumps
+    target_3 = [5, 6, 7, 13, 14, 15, 21, 22, 23]
+    target_5 = [8, 9, 10, 16, 17, 18, 24, 25, 26, 31]
+
+    jumpDif = abs(cellNum - p_Target)
+    if cellNum - p_Target > 0:
+        jumpDifSign = "-"
+    else:
+        jumpDifSign = "+"
+    # There are three possible jump patterns
+    if jumpDif == 3 or jumpDif == 5:
+        checkNum = 4
+    elif jumpDif == 4:
+        if p_Target in target_3:
+            if jumpDifSign == "+":
+                checkNum = 3
+            else:
+                checkNum = 5
+        elif p_Target in target_5:
+            if jumpDifSign == "+":
+                checkNum = 5
+            else:
+                checkNum = 3
+    if jumpDifSign == "-":
+        checkNum = checkNum * -1
+    landSpace = p_Target + checkNum
+
+    return landSpace
+
+
+def jumpUpdate(activeBoard, old_square, remove, new_squre, agentColor):
+    temp = activeBoard[old_square]
+    activeBoard[old_square] = 0
+    activeBoard[remove] = 0
+    activeBoard[new_squre] = temp
+    activeBoard = checkForKing(activeBoard, agentColor)
+
+    return activeBoard
+
+
 def checkForJumps(activeBoard, active, agentColor):  # Need to include double jump logic
     # A player MUST make a jump if they can (and double jumps)
     '''
@@ -126,12 +167,9 @@ def checkForJumps(activeBoard, active, agentColor):  # Need to include double ju
         Check for new jumps
         repeat until the SAME piece has no more jumps
     '''
-    target_3 = [5, 6, 7, 13, 14, 15, 21, 22, 23]
-    target_5 = [8, 9, 10, 16, 17, 18, 24, 25, 26, 31]
-
+    availableJumps = []  # all jumps available
     # Check for jumps that the player must make
     if active == "player":
-        found_jump = False
         for cellNum in range(len(activeBoard)):
             # Current piece is a friendly man ... Check for jumps
             if activeBoard[cellNum] == value_dic["enemyMan"]:
@@ -146,32 +184,10 @@ def checkForJumps(activeBoard, active, agentColor):  # Need to include double ju
                     if (activeBoard[p_Target] == value_dic["ownMan"] or activeBoard[p_Target] == value_dic["ownKing"]) \
                         and (p_Target not in edgeCells):
                             # There is a bordering enemy piece, see if it can be jumped
-                            jumpDif = abs(cellNum-p_Target)
-                            if cellNum-p_Target > 0:
-                                jumpDifSign = "-"
-                            else:
-                                jumpDifSign = "+"
-                            # There are three possible jump patterns
-                            if jumpDif == 3 or jumpDif == 5:
-                                checkNum = 4
-                            elif jumpDif == 4:
-                                if p_Target in target_3:
-                                    if jumpDifSign == "+":
-                                        checkNum = 3
-                                    else:
-                                        checkNum = 5
-                                elif p_Target in target_5:
-                                    if jumpDifSign == "+":
-                                        checkNum = 5
-                                    else:
-                                        checkNum = 3
-                            if jumpDifSign == "-":
-                                checkNum = checkNum * -1
-                            new_move = p_Target + checkNum
-                            if activeBoard[new_move] == 0:
-                                found_jump = True
-                                old_square, remove, new_squre = cellNum, p_Target, new_move
-                                break
+                            possibleLand = landSpace(cellNum, p_Target)
+                            if activeBoard[possibleLand] == 0:
+                                old_square, remove, new_squre = cellNum, p_Target, possibleLand  # Readable Variables
+                                availableJumps.append([old_square, remove, new_squre])
             # Current piece is a friendly king ... Check for jumps
             elif activeBoard[cellNum] == value_dic["enemyKing"]:
                 # Checking the moves for the current piece
@@ -182,42 +198,13 @@ def checkForJumps(activeBoard, active, agentColor):  # Need to include double ju
                     if (activeBoard[p_Target] == value_dic["ownMan"] or activeBoard[p_Target] == value_dic["ownKing"]) \
                         and (p_Target not in edgeCells):
                             # There is a bordering enemy piece, see if it can be jumped
-                            jumpDif = abs(cellNum-p_Target)
-                            if cellNum-p_Target > 0:
-                                jumpDifSign = "-"
-                            else:
-                                jumpDifSign = "+"
-                            # There are three possible jump patterns
-                            if jumpDif == 3 or jumpDif == 5:
-                                checkNum = 4
-                            elif jumpDif == 4:
-                                if p_Target in target_3:
-                                    if jumpDifSign == "+":
-                                        checkNum = 3
-                                    else:
-                                        checkNum = 5
-                                elif p_Target in target_5:
-                                    if jumpDifSign == "+":
-                                        checkNum = 5
-                                    else:
-                                        checkNum = 3
-                            if jumpDifSign == "-":
-                                checkNum = checkNum * -1
-                            new_move = p_Target + checkNum
-                            if activeBoard[new_move] == 0:
-                                found_jump = True
-                                old_square, remove, new_squre = cellNum, p_Target, new_move
-                                break
-        if found_jump == True:
-            temp = activeBoard[old_square]
-            activeBoard[old_square] = 0
-            activeBoard[remove] = 0
-            activeBoard[new_squre] = temp
-            activeBoard = checkForKing(activeBoard, agentColor)
-        return found_jump, activeBoard
+                            possibleLand = landSpace(cellNum, p_Target)
+                            if activeBoard[possibleLand] == 0:
+                                old_square, remove, new_squre = cellNum, p_Target, possibleLand  # Readable Variables
+                                availableJumps.append([old_square, remove, new_squre])
+        return availableJumps
     # Check for jumps that the agent must make
     elif active == "agent":
-        found_jump = False
         for cellNum in range(len(activeBoard)):
             # Current piece is a friendly man ... Check for jumps
             if activeBoard[cellNum] == value_dic["ownMan"]:
@@ -232,32 +219,10 @@ def checkForJumps(activeBoard, active, agentColor):  # Need to include double ju
                     if (activeBoard[p_Target] == value_dic["enemyMan"] or activeBoard[p_Target] == value_dic["enemyKing"]) \
                             and (p_Target not in edgeCells):
                         # There is a bordering enemy piece, see if it can be jumped
-                        jumpDif = abs(cellNum-p_Target)
-                        if cellNum-p_Target > 0:
-                            jumpDifSign = "-"
-                        else:
-                            jumpDifSign = "+"
-                        # There are three possible jump patterns
-                        if jumpDif == 3 or jumpDif == 5:
-                            checkNum = 4
-                        elif jumpDif == 4:
-                            if p_Target in target_3:
-                                if jumpDifSign == "+":
-                                    checkNum = 3
-                                else:
-                                    checkNum = 5
-                            elif p_Target in target_5:
-                                if jumpDifSign == "+":
-                                    checkNum = 5
-                                else:
-                                    checkNum = 3
-                        if jumpDifSign == "-":
-                            checkNum = checkNum * -1
-                        new_move = p_Target + checkNum
-                        if activeBoard[new_move] == 0:
-                            found_jump = True
-                            old_square, remove, new_squre = cellNum, p_Target, new_move
-                            break
+                        possibleLand = landSpace(cellNum, p_Target)
+                        if activeBoard[possibleLand] == 0:
+                            old_square, remove, new_squre = cellNum, p_Target, possibleLand  # Readable Variables
+                            availableJumps.append([old_square, remove, new_squre])
             # Current piece is a friendly king ... Check for jumps
             elif activeBoard[cellNum] == value_dic["ownKing"]:
                 # Checking the moves for the current piece
@@ -268,44 +233,14 @@ def checkForJumps(activeBoard, active, agentColor):  # Need to include double ju
                     if (activeBoard[p_Target] == value_dic["enemyMan"] or activeBoard[p_Target] == value_dic["enemyKing"]) \
                             and (p_Target not in edgeCells):
                         # There is a bordering enemy piece, see if it can be jumped
-                        jumpDif = abs(cellNum-p_Target)
-                        if cellNum-p_Target > 0:
-                            jumpDifSign = "-"
-                        else:
-                            jumpDifSign = "+"
-                        # There are three possible jump patterns
-                        if jumpDif == 3 or jumpDif == 5:
-                            checkNum = 4
-                        elif jumpDif == 4:
-                            if p_Target in target_3:
-                                if jumpDifSign == "+":
-                                    checkNum = 3
-                                else:
-                                    checkNum = 5
-                            elif p_Target in target_5:
-                                if jumpDifSign == "+":
-                                    checkNum = 5
-                                else:
-                                    checkNum = 3
-                        if jumpDifSign == "-":
-                            checkNum = checkNum * -1
-                        new_move = p_Target + checkNum
-                        if activeBoard[new_move] == 0:
-                            found_jump = True
-                            old_square, remove, new_squre = cellNum, p_Target, new_move
-                            break
-
-        if found_jump == True:
-            temp = activeBoard[old_square]
-            activeBoard[old_square] = 0
-            activeBoard[remove] = 0
-            activeBoard[new_squre] = temp
-            activeBoard = checkForKing(activeBoard, agentColor)
-
-        return found_jump, activeBoard
+                        possibleLand = landSpace(cellNum, p_Target)
+                        if activeBoard[possibleLand] == 0:
+                            old_square, remove, new_squre = cellNum, p_Target, possibleLand  # Readable Variables
+                            availableJumps.append([old_square, remove, new_squre])
+        return availableJumps
 
 
-def chooseMove(activeBoard, agentColor):
+def findMoves(activeBoard, agentColor):
     possible_moves = []
     for i in range(len(activeBoard)):
         if activeBoard[i] == value_dic["ownMan"]:
@@ -321,11 +256,8 @@ def chooseMove(activeBoard, agentColor):
             for spot in tempSpots:
                 if activeBoard[spot] == 0:  # Spot is not occupied
                     possible_moves.append([i, spot, value_dic["ownKing"]])  # Old spot, New spot, piece
-    randomMove = random.choice(possible_moves)
-    activeBoard[randomMove[0]] = 0
-    activeBoard[randomMove[1]] = randomMove[2]
 
-    return activeBoard
+    return possible_moves
 
 
 def checkMove(activeBoard, u_move, playerColor):
