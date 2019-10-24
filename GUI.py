@@ -58,12 +58,18 @@ def agentLogic(master, activeGame, agentColor):
     possibleMoves = findMoves(activeGame, agentColor)
     # TODO: Maybe allow agent to choose to not make a jump and give punishment
     if len(possibleJumps) > 0:
-        move = random.choice(possibleJumps)
-        activeGame = jumpUpdate(activeGame, move[0], move[1], move[2], agentColor)
+        foundJump = True
+        while foundJump:
+            move = random.choice(possibleJumps)
+            activeGame = jumpUpdate(activeGame, move[0], move[1], move[2], agentColor)
+            possibleJumps = checkForJumps(activeGame, "agent", agentColor)
+            if len(possibleJumps) == 0:
+                foundJump = False
     else:  # No jumps avaliable
         move = random.choice(possibleMoves)
         activeGame[move[0]] = 0
         activeGame[move[1]] = move[2]
+        activeGame = checkForKing(activeGame, agentColor)
     printGUI(master, activeGame, agentColor)
 
 
@@ -107,4 +113,3 @@ def main():
     master.title("CheckerPro")  # Name Window
     printGUI(master, activeGame, agentColor)  # Print Start Board and start the actual game
     master.mainloop()  # Keep window open
-
