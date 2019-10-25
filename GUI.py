@@ -5,9 +5,9 @@ startCell = -1
 endCell = -1
 startMove = True
 
-# TODO: Entering a wrong moves crashes the entire game
-# TODO: I need to see if this way of updating the GUI is resulting in a huge recursive problem
-# TODO: Player logic looks to be sound except the game will force a jump (good) but chooses it randomly
+
+#  TODO: The player can actually move the agent pieces with the GUI
+#  TODO: Not sure about double jump logic
 def playerLogic(cellCount, master, activeGame, agentColor):
     global startCell, endCell  # I know globals are the devil but this is the easier/best solution for this problem
     # Need to change this logic but currently some functions want to know the players color and not the agent color
@@ -27,8 +27,13 @@ def playerLogic(cellCount, master, activeGame, agentColor):
                     activeGame = jumpUpdate(activeGame, avaliableJumps[i][0], avaliableJumps[i][1], avaliableJumps[i][2], agentColor)
                     validJump = True
                     startCell, endCell = -1, -1  # Reset temp values
-                    printGUI(master, activeGame, agentColor)
-                    agentLogic(master, activeGame, agentColor)
+                    # At this point there was a valid jump made ... We need to see if there is a double
+                    if len(checkForJumps(activeGame, "player", agentColor)) > 0:  # Another jump is found
+                        printGUI(master, activeGame, agentColor)
+                        return None
+                    else:  # No more jumps found
+                        printGUI(master, activeGame, agentColor)
+                        agentLogic(master, activeGame, agentColor)
             if not validJump:
                 # Reset Move
                 startCell, endCell = -1, -1
@@ -56,8 +61,8 @@ def playerLogic(cellCount, master, activeGame, agentColor):
             agentLogic(master, activeGame, agentColor)
 
 
-# TODO: I need to see if this way of updating the GUI is resulting in a huge recursive problem
 # TODO: Jumps are forced and choose randomly ... Should let agent decide
+# TODO: Moves are choosed radomly
 def agentLogic(master, activeGame, agentColor):
     activeGame = checkForKing(activeGame, agentColor)  # See if these jumps resulted in a king
     possibleJumps = checkForJumps(activeGame, "agent", agentColor)  # Find all possible jumps
@@ -109,8 +114,6 @@ def printGUI(master, activeGame, agentColor):
 
 # TODO: Include a buffer screen for the user to see the flow of the game
 # TODO: Have an endGame check using the predefined function
-# TODO: Check the jump function because it is not always acting correctly,
-#           I think this happenes when there are multiple jumps that can occur
 def main():
     # Who will be what color? ... Currently hard coding agent to be black every game (and go first)
     agentColor = 'black'
