@@ -6,6 +6,18 @@ endCell = -1
 startMove = True
 
 
+def quit(self, message):
+    endGame = Tk()  # Make GUI
+    endGame.title("End Game")  # Name Window
+
+    engGame_Message = Message(endGame, text=message)
+    engGame_Message.pack()
+    endGame.mainloop()
+
+    endGame.destroy()
+    self.destroy()
+
+
 #  TODO: The player can actually move the agent pieces with the GUI
 #  TODO: Not sure about double jump logic
 def playerLogic(cellCount, master, activeGame, agentColor):
@@ -33,6 +45,11 @@ def playerLogic(cellCount, master, activeGame, agentColor):
                         return None
                     else:  # No more jumps found
                         printGUI(master, activeGame, agentColor)
+                        # Check for game over
+                        gameover, message = CheckGameOver(activeGame)
+                        if gameover:
+                            quit(master, message)
+                            exit()
                         agentLogic(master, activeGame, agentColor)
             if not validJump:
                 # Reset Move
@@ -58,6 +75,11 @@ def playerLogic(cellCount, master, activeGame, agentColor):
             # Print GUI and Reset moves
             startCell, endCell = -1, -1  # Reset temp values
             printGUI(master, activeGame, agentColor)
+            # Check for game over
+            gameover, message = CheckGameOver(activeGame)
+            if gameover:
+                quit(master, message)
+                exit()
             agentLogic(master, activeGame, agentColor)
 
 
@@ -82,6 +104,10 @@ def agentLogic(master, activeGame, agentColor):
         activeGame[move[1]] = move[2]
         activeGame = checkForKing(activeGame, agentColor)
     printGUI(master, activeGame, agentColor)
+    gameover, message = CheckGameOver(activeGame)
+    if gameover:
+        quit(master, message)
+
 
 
 def printGUI(master, activeGame, agentColor):
