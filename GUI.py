@@ -30,7 +30,10 @@ def playerLogic(cellCount, master, activeGame, agentColor):
                     printGUI(master, activeGame, agentColor)
                     agentLogic(master, activeGame, agentColor)
             if not validJump:
-                print("TODO: Fix invalid moves")
+                # Reset Move
+                startCell, endCell = -1, -1
+                # Exit this function call
+                return None
         else:
             user_move = [startCell, endCell]
             validMove = False  # Assume the move is invalid
@@ -38,7 +41,10 @@ def playerLogic(cellCount, master, activeGame, agentColor):
             while(not validMove):
                 validMove = checkMove(activeGame, user_move, playerColor)  # Check if the move is valid
                 if not validMove:
-                    print("TODO: Fix invalid moves")
+                    # Reset Move
+                    startCell, endCell = -1, -1
+                    # Exit this function call
+                    return None
             # Valid move
             temp_value = activeGame[user_move[0]]  # Collect the piece info at the old cell
             activeGame[user_move[0]] = 0           # Remove the piece from the old cell
