@@ -20,6 +20,7 @@ games_df = pd.read_pickle('Pickles/games_df.p')
 value_dic = {"ownMan": 1, "ownKing": 1.5, "enemyMan": -1.5, "enemyKing": -3}
 gameBoard = np.zeros(32)  # By default the board is an empty 1x32 matrix ... see parse.py for board example
 
+
 def startGame(color):
     returnBoard = gameBoard.copy()
     if color.lower() == "white":
@@ -34,19 +35,20 @@ def startGame(color):
 
 # Part 1: Train the Neural Network using black moves
 def findBlackValue():
-
     return 1
+
 
 # Part 2: Train the Neural Network using white moves
 def findWhiteValue():
-
     return 1
+
 
 def prepareGame():
     '''
     Takes in a row from games_df as well as what color
     '''
     return 1
+
 
 white = startGame("white")
 
