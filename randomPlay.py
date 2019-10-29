@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd  # Not being used
 import numpy as np
 import random
 
@@ -73,6 +73,7 @@ def findTextValue(activeBoard, cellCount, agentColor):
     return ""
 
 
+# Restructure logic here
 def printBoard(activeBoard, agentColor):  # This will no longer be needed
     cell_num = 0
     blank = True
@@ -351,6 +352,7 @@ def main():
     print("Game is Starting")
     printBoard(activeGame, agentColor)
     # TODO: Agent is always going first, but Black should only go first
+    # This is not begin used dat the moment (Asking player what color they want to be)
     while True:
         # Let agent go
         # Check for jumps and force them
@@ -361,7 +363,8 @@ def main():
             printBoard(activeGame, agentColor)
             print("---------------------------------------")
         else:
-            activeGame = chooseMove(activeGame, agentColor) # What/ Where is this function located?
+            activeGame = chooseMove(activeGame, agentColor)  # What/ Where is this function located? Where is
+            # ChooseMove defined ?
             activeGame = checkForKing(activeGame, agentColor)  # See if the move resulted in a king
             # Print board
             print("---------------------------------------")

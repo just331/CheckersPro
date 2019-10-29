@@ -6,12 +6,21 @@ endCell = -1
 startMove = True
 
 
+# Create button to end game after win or loss
+# def closeWindow():
+#    endGame.destroy()
+
+
 def quitGame(self, message):
     endGame = Tk()  # Make GUI
     endGame.title("End Game")  # Name Window
-
+    endGame.geometry("100x100") # Resized endgame message window
     engGame_Message = Message(endGame, text=message)
     engGame_Message.pack()
+    # frame = Frame(endGame)
+    # frame.pack()
+    # button = Button(frame, text="Exit Game!", command=closeWindow)
+    # button.pack()
     endGame.mainloop()
 
     endGame.destroy()
