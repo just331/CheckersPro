@@ -6,12 +6,21 @@ endCell = -1
 startMove = True
 
 
-def quit(self, message):
+# Create button to end game after win or loss
+# def closeWindow():
+#    endGame.destroy()
+
+
+def quitGame(self, message):
     endGame = Tk()  # Make GUI
     endGame.title("End Game")  # Name Window
-
+    endGame.geometry("100x100") # Resized endgame message window
     engGame_Message = Message(endGame, text=message)
     engGame_Message.pack()
+    # frame = Frame(endGame)
+    # frame.pack()
+    # button = Button(frame, text="Exit Game!", command=closeWindow)
+    # button.pack()
     endGame.mainloop()
 
     endGame.destroy()
@@ -36,7 +45,8 @@ def playerLogic(cellCount, master, activeGame, agentColor):
             validJump = False
             for i in range(len(avaliableJumps)):
                 if avaliableJumps[i][0] == startCell and avaliableJumps[i][2] == endCell:
-                    activeGame = jumpUpdate(activeGame, avaliableJumps[i][0], avaliableJumps[i][1], avaliableJumps[i][2], agentColor)
+                    activeGame = jumpUpdate(activeGame, avaliableJumps[i][0], avaliableJumps[i][1],
+                                            avaliableJumps[i][2], agentColor)
                     validJump = True
                     startCell, endCell = -1, -1  # Reset temp values
                     # At this point there was a valid jump made ... We need to see if there is a double
@@ -48,7 +58,7 @@ def playerLogic(cellCount, master, activeGame, agentColor):
                         # Check for game over
                         gameover, message = CheckGameOver(activeGame)
                         if gameover:
-                            quit(master, message)
+                            quitGame(master, message)
                             exit()
                         agentLogic(master, activeGame, agentColor)
             if not validJump:
@@ -60,7 +70,7 @@ def playerLogic(cellCount, master, activeGame, agentColor):
             user_move = [startCell, endCell]
             validMove = False  # Assume the move is invalid
             # Make sure move is valid
-            while(not validMove):
+            while not validMove:
                 validMove = checkMove(activeGame, user_move, playerColor)  # Check if the move is valid
                 if not validMove:
                     # Reset Move
@@ -69,7 +79,7 @@ def playerLogic(cellCount, master, activeGame, agentColor):
                     return None
             # Valid move
             temp_value = activeGame[user_move[0]]  # Collect the piece info at the old cell
-            activeGame[user_move[0]] = 0           # Remove the piece from the old cell
+            activeGame[user_move[0]] = 0  # Remove the piece from the old cell
             activeGame[user_move[1]] = temp_value  # Move the piece to the new cell
             activeGame = checkForKing(activeGame, agentColor)  # See if this move resulted in a king
             # Print GUI and Reset moves
@@ -78,13 +88,13 @@ def playerLogic(cellCount, master, activeGame, agentColor):
             # Check for game over
             gameover, message = CheckGameOver(activeGame)
             if gameover:
-                quit(master, message)
+                quitGame(master, message)
                 exit()
             agentLogic(master, activeGame, agentColor)
 
 
 # TODO: Jumps are forced and choose randomly ... Should let agent decide
-# TODO: Moves are choosed radomly
+# TODO: Moves are chosen randomly
 def agentLogic(master, activeGame, agentColor):
     activeGame = checkForKing(activeGame, agentColor)  # See if these jumps resulted in a king
     possibleJumps = checkForJumps(activeGame, "agent", agentColor)  # Find all possible jumps
@@ -98,7 +108,7 @@ def agentLogic(master, activeGame, agentColor):
             possibleJumps = checkForJumps(activeGame, "agent", agentColor)
             if len(possibleJumps) == 0:
                 foundJump = False
-    else:  # No jumps avaliable
+    else:  # No jumps available
         move = random.choice(possibleMoves)
         activeGame[move[0]] = 0
         activeGame[move[1]] = move[2]
@@ -106,8 +116,7 @@ def agentLogic(master, activeGame, agentColor):
     printGUI(master, activeGame, agentColor)
     gameover, message = CheckGameOver(activeGame)
     if gameover:
-        quit(master, message)
-
+        quitGame(master, message)
 
 
 def printGUI(master, activeGame, agentColor):
@@ -127,9 +136,10 @@ def printGUI(master, activeGame, agentColor):
                 button.grid(row=i, column=j)
                 buttons.append(button)
             else:
-                cellText = findTextValue(activeGame, 31-cellCount, agentColor)
-                button = Button(master, text=str(cellText), bg="red", height=5, width=10, command=lambda x=i, y=j, cellNum=cellCount:
-                    playerLogic(31-cellNum, master, activeGame, agentColor))
+                cellText = findTextValue(activeGame, 31 - cellCount, agentColor)
+                button = Button(master, text=str(cellText), bg="red", height=5, width=10,
+                                command=lambda x=i, y=j, cellNum=cellCount:
+                                playerLogic(31 - cellNum, master, activeGame, agentColor))
                 button.grid(row=i, column=j)
                 buttons.append(button)
                 cellCount += 1
