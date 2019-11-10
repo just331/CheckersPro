@@ -4,27 +4,26 @@ from tkinter import *  # For gui stuff
 startCell = -1
 endCell = -1
 startMove = True
+endGame = Tk()  # Make GUI
 
 
 # Create button to end game after win or loss
-# def closeWindow():
-#    endGame.destroy()
+def closeWindow():
+    endGame.destroy()
 
 
 def quitGame(self, message):
-    endGame = Tk()  # Make GUI
     endGame.title("End Game")  # Name Window
-    endGame.geometry("100x100") # Resized endgame message window
+    endGame.geometry("300x100")  # Resized endgame message window
     engGame_Message = Message(endGame, text=message)
     engGame_Message.pack()
     # frame = Frame(endGame)
     # frame.pack()
-    # button = Button(frame, text="Exit Game!", command=closeWindow)
-    # button.pack()
+    button = Button(text="Exit Game!", command=closeWindow)
+    button.pack()
     endGame.mainloop()
-
-    endGame.destroy()
-    self.destroy()
+    # endGame.destroy()
+    self.root.destroy()
 
 
 #  TODO: The player can actually move the agent pieces with the GUI
@@ -40,13 +39,13 @@ def playerLogic(cellCount, master, activeGame, agentColor):
         startCell = cellCount
     else:
         endCell = cellCount
-        avaliableJumps = checkForJumps(activeGame, "player", agentColor)
-        if len(avaliableJumps) > 0:  # There is a jump
+        availableJumps = checkForJumps(activeGame, "player", agentColor)
+        if len(availableJumps) > 0:  # There is a jump
             validJump = False
-            for i in range(len(avaliableJumps)):
-                if avaliableJumps[i][0] == startCell and avaliableJumps[i][2] == endCell:
-                    activeGame = jumpUpdate(activeGame, avaliableJumps[i][0], avaliableJumps[i][1],
-                                            avaliableJumps[i][2], agentColor)
+            for i in range(len(availableJumps)):
+                if availableJumps[i][0] == startCell and availableJumps[i][2] == endCell:
+                    activeGame = jumpUpdate(activeGame, availableJumps[i][0], availableJumps[i][1],
+                                            availableJumps[i][2], agentColor)
                     validJump = True
                     startCell, endCell = -1, -1  # Reset temp values
                     # At this point there was a valid jump made ... We need to see if there is a double
@@ -137,7 +136,7 @@ def printGUI(master, activeGame, agentColor):
                 buttons.append(button)
             else:
                 cellText = findTextValue(activeGame, 31 - cellCount, agentColor)
-                button = Button(master, text=str(cellText), bg="red", height=5, width=10,
+                button = Button(master, text=str(cellText), bg="light green", height=5, width=10,
                                 command=lambda x=i, y=j, cellNum=cellCount:
                                 playerLogic(31 - cellNum, master, activeGame, agentColor))
                 button.grid(row=i, column=j)
