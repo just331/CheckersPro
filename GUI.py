@@ -5,10 +5,12 @@ startCell = -1
 endCell = -1
 startMove = True
 endGame = Tk()  # Make GUI
+master = Tk()  # Make GUI
 
 
 # Create button to end game after win or loss
 def closeWindow():
+    master.destroy()
     endGame.destroy()
 
 
@@ -21,9 +23,10 @@ def quitGame(self, message):
     # frame.pack()
     button = Button(text="Exit Game!", command=closeWindow)
     button.pack()
+    endGame.lift()
     endGame.mainloop()
     # endGame.destroy()
-    self.root.destroy()
+    # self.destroy()
 
 
 #  TODO: The player can actually move the agent pieces with the GUI
@@ -153,7 +156,6 @@ def main():
     # Who will be what color? ... Currently hard coding agent to be black every game (and go first)
     agentColor = 'black'
     activeGame = startGame(agentColor)
-    master = Tk()  # Make GUI
     master.title("CheckerPro")  # Name Window
     printGUI(master, activeGame, agentColor)  # Print Start Board and start the actual game
     master.mainloop()  # Keep window open
