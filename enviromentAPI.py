@@ -87,6 +87,8 @@ blackEndZone = [0, 1, 2, 3]      # White piece turns to king when it reaches the
 whiteEndZone = [28, 29, 30, 31]  # Black piece turns to king when it reaches the end zone.
 
 # Helper Functions ----------
+
+
 def print_dict(a_dict):
     key_list = sorted(a_dict.keys())
     for key in key_list:
@@ -119,7 +121,39 @@ def checkForKing(board, color):
     return board
 
 
+def landSpace(cellNum, p_Target):
+    # This is kinda hard to explain but is needed for determining legal jumps
+    target_3 = [5, 6, 7, 13, 14, 15, 21, 22, 23]
+    target_5 = [8, 9, 10, 16, 17, 18, 24, 25, 26, 31]
+
+    jumpDif = abs(cellNum - p_Target)
+    if cellNum - p_Target > 0:
+        jumpDifSign = "-"
+    else:
+        jumpDifSign = "+"
+    # There are three possible jump patterns
+    if jumpDif == 3 or jumpDif == 5:
+        checkNum = 4
+    elif jumpDif == 4:
+        if p_Target in target_3:
+            if jumpDifSign == "+":
+                checkNum = 3
+            else:
+                checkNum = 5
+        elif p_Target in target_5:
+            if jumpDifSign == "+":
+                checkNum = 5
+            else:
+                checkNum = 3
+    if jumpDifSign == "-":
+        checkNum = checkNum * -1
+    landSpace = p_Target + checkNum
+
+    return landSpace
+
+
 # API Functions -------------
+
 
 def createEnviroment(color):
     # NOTE: This program places white at the TOP of the board
@@ -180,8 +214,82 @@ def createRandomEnviroment(color, kingPob):
     return returnBoard
 
 
-def getJumps(board, color):
-    print("TODO")  # Hopefully before the end of the week
+def getJumps(board, color, player="Agent"):
+    availableJumps = []  # Return List
+    if player == "Agent":
+        # Cycle through the board
+        for cellNum in range(len(board)):
+            # Current piece is a friendly man ... Check for jumps
+            if board[cellNum] == value_dic["ownMan"]:
+                # Need to see what possible jumps there could be
+                if color == "b":
+                    possibleJumps = blackMoves[cellNum]
+                else:
+                    possibleJumps = whiteMoves[cellNum]
+                # Cycle through the cells that this piece could move to
+                for p_Target in possibleJumps:
+                    # See if one of the cells contains an enemy piece and that piece is not on an edge cell
+                    if (board[p_Target] == value_dic["enemyMan"] or board[p_Target] == value_dic["enemyKing"]) \
+                            and (p_Target not in edgeCells):
+                        # There is a bordering enemy piece, see if it can be jumped
+                        possibleLand = landSpace(cellNum, p_Target)
+                        if board[possibleLand] == 0:  # Land spot is empty
+                            value = value_dic["ownMan"]
+                            old_square, remove, new_squre = cellNum, p_Target, possibleLand
+                            availableJumps.append([old_square, new_squre, remove, value])
+            # Current piece is a friendly king ... Check for jumps
+            elif board[cellNum] == value_dic["ownKing"]:
+                # Checking the moves for the current piece
+                possibleJumps = kingMoves[cellNum]
+                # Cycle through the cells that this piece could move to
+                for p_Target in possibleJumps:
+                    # See if one of the cells contains an enemy piece and that piece is not on an edge cell
+                    if (board[p_Target] == value_dic["enemyMan"] or board[p_Target] == value_dic["enemyKing"]) \
+                            and (p_Target not in edgeCells):
+                        # There is a bordering enemy piece, see if it can be jumped
+                        possibleLand = landSpace(cellNum, p_Target)
+                        if board[possibleLand] == 0:
+                            value = value_dic["ownKing"]
+                            old_square, remove, new_squre = cellNum, p_Target, possibleLand
+                            availableJumps.append([old_square, new_squre, remove, value])
+        return availableJumps
+    elif player == "Opponent":
+        # Cycle through the board
+        for cellNum in range(len(board)):
+            # Current piece is a friendly man ... Check for jumps
+            if board[cellNum] == value_dic["enemyMan"]:
+                # Need to see what possible jumps there could be
+                if color == "b":
+                    possibleJumps = whiteMoves[cellNum]
+                else:
+                    possibleJumps = blackMoves[cellNum]
+                # Cycle through the cells that this piece could move to
+                for p_Target in possibleJumps:
+                    # See if one of the cells contains an enemy piece and that piece is not on an edge cell
+                    if (board[p_Target] == value_dic["ownMan"] or board[p_Target] == value_dic["ownKing"]) \
+                            and (p_Target not in edgeCells):
+                        # There is a bordering enemy piece, see if it can be jumped
+                        possibleLand = landSpace(cellNum, p_Target)
+                        if board[possibleLand] == 0:  # Land spot is empty
+                            value = value_dic["enemyMan"]
+                            old_square, remove, new_squre = cellNum, p_Target, possibleLand
+                            availableJumps.append([old_square, new_squre, remove, value])
+            # Current piece is a friendly king ... Check for jumps
+            elif board[cellNum] == value_dic["enemyKing"]:
+                # Checking the moves for the current piece
+                possibleJumps = kingMoves[cellNum]
+                # Cycle through the cells that this piece could move to
+                for p_Target in possibleJumps:
+                    # See if one of the cells contains an enemy piece and that piece is not on an edge cell
+                    if (board[p_Target] == value_dic["ownMan"] or board[p_Target] == value_dic["ownKing"]) \
+                            and (p_Target not in edgeCells):
+                        # There is a bordering enemy piece, see if it can be jumped
+                        possibleLand = landSpace(cellNum, p_Target)
+                        if board[possibleLand] == 0:
+                            value = value_dic["enemyKing"]
+                            old_square, remove, new_squre = cellNum, p_Target, possibleLand
+                            availableJumps.append([old_square, new_squre, remove, value])
+        return availableJumps
 
 
 def getMoves(board, color, player="Agent"):
@@ -202,7 +310,7 @@ def getMoves(board, color, player="Agent"):
             elif board[i] == value_dic["ownKing"]:  # 'king' belonging to the agent
                 tempSpots = kingMoves[i]
                 for spot in tempSpots:
-                    if color[spot] == 0:  # Spot is not occupied
+                    if board[spot] == 0:  # Spot is not occupied
                         possibleMoves.append([i, spot, value_dic["ownKing"]])  # Old spot, New spot, piece to move
         elif player == "Opponent":
             if board[i] == value_dic["enemyMan"]:  # 'man' belonging to the agent
@@ -217,14 +325,28 @@ def getMoves(board, color, player="Agent"):
             elif board[i] == value_dic["ownKing"]:  # 'king' belonging to the agent
                 tempSpots = kingMoves[i]
                 for spot in tempSpots:
-                    if color[spot] == 0:  # Spot is not occupied
+                    if board[spot] == 0:  # Spot is not occupied
                         possibleMoves.append([i, spot, value_dic["enemyKing"]])  # Old spot, New spot, piece to move
 
     return possibleMoves
 
 
-def makeJumps():
-    print("TODO")  # Hopefully before the end of the week
+def makeJumps(board, color, jumpObject, player="Agent"):
+    oldSpot = jumpObject[0]
+    newSpot = jumpObject[1]
+    remove = jumpObject[2]
+    value = jumpObject[3]
+
+    # Step 1) Make the jump ... because this jump was made internally, we know it is a legal jump
+    board[oldSpot] = 0
+    board[newSpot] = value
+    board[remove] = 0
+    # Step 2) Check if the move resulted in a king and update
+    board = checkForKing(board, color)
+    # Step 3) Check to see if there is another move
+    # Per an investigation I did, I strongly believe that the only jumps that could occur after the first jump
+    # is from the piece that did the first jump
+    return getJumps(board, color, player), board
 
 
 def makeMoves(board, color, moveObject):
@@ -243,17 +365,20 @@ def takeStep(board, color):
     # This is where the opponent will make a move / For training this will be a sudo-random move.
     # Step 1: Check if there is a jump and then a move
     jump = True
-    actions = getJumps(board, color)  # First look for a jump
+    actions = getJumps(board, color, player="Opponent")  # First look for a jump
     if len(actions) == 0:
         jump = False
-        actions = getMoves(board, color)  # If no jump, look for a move
+        actions = getMoves(board, color, player="Opponent")  # If no jump, look for a move
     # Choose a random move
     action = random.choice(actions)
     # Step 2: Preform the action
-    if jump:  # Need to make this function and also implement a double jump logic
-        state = makeJumps()
+    if jump:
+        while len(actions) > 0:  # There is at least one jump available
+            actions, board = makeJumps(board, color, action, player="Opponent")
+            if len(actions) > 0:
+                action = random.choice(actions)
     else:  # Make move
-        state = makeMoves(board, color, action)
+        board = makeMoves(board, color, action)
     # Step 3: Return the new board after the jump was made
     return board
 

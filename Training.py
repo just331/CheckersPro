@@ -3,7 +3,7 @@ import random
 from enviromentAPI import *
 
 # Parameters
-num_Episodes = 100
+num_Episodes = 10
 type_Episodes = "Normal"  # Other possible type is "Random"
 discount = 1  # Not sure what we should do here
 
@@ -45,8 +45,11 @@ for i in range(num_Episodes):
         # Choose a random move
         action = random.choice(actions)
 
-        if jump:  # Need to make this function and also implement a double jump logic
-            state = makeJumps()
+        if jump:
+            while len(actions) > 0:  # There is at least one jump available
+                actions, state = makeJumps(state, agentColor, action)
+                if len(actions) > 0:
+                    action = random.choice(actions)
         else:  # Make move
             state = makeMoves(state, agentColor, action)
 
@@ -54,7 +57,7 @@ for i in range(num_Episodes):
         reward = checkEndGame(state, agentColor)
 
         episode_action.append(action)
-        episode_state.append(state)
+        episode_state.append(str(state))
 
         if reward != 0:  # Either a win or loss
             episode_reward.append(reward)
@@ -68,17 +71,18 @@ for i in range(num_Episodes):
             if reward != 0:  # Either a win or loss
                 break
 
-    # Calculate g
+    # Calculate g -- This may need to be revised / optimized
     g = 0
     for tg in range(len(episode_reward) - 1, -1, -1):
         g = discount * g + episode_reward[tg]
+        # print("Itteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
         if episode_state.index(episode_state[tg]) == tg:
-            if episode_state[tg] in returns:
-                returns[episode_state[tg]].append(g)
+            if str(episode_state[tg]) in returns:
+                returns[str(episode_state[tg])].append(g)
             else:
-                returns[episode_state[tg]] = [g]
-            v[episode_state[tg]] = sum(returns[episode_state[tg]]) / \
-                                   len(returns[episode_state[tg]])
+                returns[str(episode_state[tg])] = [g]
+            v[str(episode_state[tg])] = sum(returns[str(episode_state[tg])]) / \
+                                   len(returns[str(episode_state[tg])])
 
 print("\nv")
 print_dict(v)
