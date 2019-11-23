@@ -29,6 +29,7 @@ def quitGame(self, message):
     # self.destroy()
 
 
+#  TODO: When player has no available moves, the game should end (but doesn't)
 #  TODO: The player can actually move the agent pieces with the GUI
 #  TODO: Not sure about double jump logic
 def playerLogic(cellCount, master, activeGame, agentColor):
