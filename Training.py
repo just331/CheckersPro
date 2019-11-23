@@ -1,9 +1,11 @@
 import numpy as np
 import random
 from enviromentAPI import *
+from os import path
+import pickle
 
 # Parameters
-num_Episodes = 10
+num_Episodes = 10000
 type_Episodes = "Normal"  # Other possible type is "Random"
 discount = 1  # Not sure what we should do here
 
@@ -11,8 +13,14 @@ discount = 1  # Not sure what we should do here
 colors = ["w", "b"]
 
 # Global Storage
-returns = {}
-v = {}
+if path.exists("returns.pkl"):
+    returns = pickle.load(open("returns.pkl", "rb"))
+else:
+    returns = {}
+if path.exists("v.pkl"):
+    v = pickle.load(open("v.pkl", "rb"))
+else:
+    v = {}
 
 
 # run through n number of episodes
@@ -84,8 +92,26 @@ for i in range(num_Episodes):
             v[str(episode_state[tg])] = sum(returns[str(episode_state[tg])]) / \
                                    len(returns[str(episode_state[tg])])
 
-print("\nv")
-print_dict(v)
+#print("\nv")
+#print_dict(v)
+# for tempKey in v:
+#     if v[tempKey] != -1 and v[tempKey] != 1:
+#         print(v[tempKey])
 
-# TODO: Save the global storage
+# --- Save values ---
+with open('returns.pkl', 'wb') as handle_r:
+    pickle.dump(returns, handle_r)
 
+with open('v.pkl', 'wb') as handle_v:
+    pickle.dump(v, handle_v)
+
+
+# NOTES:
+# Sudo Random - Look ahead for double jumps and prioritize those
+# Prioirtize getting a king from making a different move
+# If an agent makes a move, we should report the state after the player? or only after the agnet?
+# I think after opponent
+# Try to reduce state space
+# During play, look for state, if state is not found try looking for an all 'lower case' of the same state
+
+# So it looks like numpy is auto adding \n but that doesn't seem to be a problem
