@@ -5,9 +5,10 @@ from os import path
 import pickle
 
 # Parameters
-num_Episodes = 10000
+num_Episodes = 100
 type_Episodes = "Normal"  # Other possible type is "Random"
 discount = 1  # Not sure what we should do here
+epsilon = .5  # Playing around with not using pure greedy. epsilon = 0 is pure greedy
 
 # Hard Coded Globals
 colors = ["w", "b"]
@@ -44,22 +45,51 @@ for i in range(num_Episodes):
     episode_state.append(state)  # Start State
 
     while True:
-        # get a random action from the environment
+        # Collect all of the possible actions
         jump = True
         actions = getJumps(state, agentColor)      # First look for a jump
         if len(actions) == 0:
             jump = False
             actions = getMoves(state, agentColor)  # If no jump, look for a move
-        # Choose a random move
-        action = random.choice(actions)
 
-        if jump:
+        # Choose an action
+        # Check for policy, only if the action is a move -- we may need to optimize this
+        if not jump and random.random() < epsilon:
+            '''
+            Sudo Code:
+            using epislon, determine if we want to use our policy or if we want random
+            if policy: find all the states that are avaliable given the current moves avaliable 
+            check each state to see if it is in our V and if so save that value
+            take the action that resulting in moving into the state that has the highest value
+            Maybe: Check an "all lowercase" board and see if we have the policy
+            '''
+            knownStates = []
+            for a in actions:
+                temp_state = makeMoves(state, agentColor, a)
+                try:
+                    knownStates.append([a, v[str(temp_state)]])
+                except:
+                    pass
+            if len(knownStates) > 0:
+                allValues = list((map(lambda x: x[1], knownStates)))  # Collect all the values
+                actionIndex = allValues.index(max(allValues))         # Find the index of the max value
+                action = knownStates[actionIndex][0]
+                state = makeMoves(state, agentColor, action)
+            else:
+                action = random.choice(actions)
+                state = makeMoves(state, agentColor, action)
+        # If we are making a jump, we are using enforced logic
+        elif jump:
+            # Todo: move the double jump logic and create the looking for double jump logic
+            action = random.choice(actions)
             while len(actions) > 0:  # There is at least one jump available
                 actions, state = makeJumps(state, agentColor, action)
                 if len(actions) > 0:
                     action = random.choice(actions)
-        else:  # Make move
+        else:  # Making a move and not using a policy
+            action = random.choice(actions)
             state = makeMoves(state, agentColor, action)
+
 
         # Collect the reward. ONLY to see if the game is over
         reward = checkEndGame(state, agentColor)
@@ -109,8 +139,7 @@ with open('v.pkl', 'wb') as handle_v:
 # NOTES:
 # Sudo Random - Look ahead for double jumps and prioritize those
 # Prioirtize getting a king from making a different move
-# If an agent makes a move, we should report the state after the player? or only after the agnet?
-# I think after opponent
+
 # Try to reduce state space
 # During play, look for state, if state is not found try looking for an all 'lower case' of the same state
 
