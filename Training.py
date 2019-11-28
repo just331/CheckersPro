@@ -8,7 +8,7 @@ import pickle
 num_Episodes = 100
 type_Episodes = "Normal"  # Other possible type is "Random"
 discount = 1  # Not sure what we should do here
-epsilon = .5  # Playing around with not using pure greedy. epsilon = 0 is pure greedy
+epsilon = .1  # Playing around with not using pure greedy. epsilon = 0 is pure greedy
 
 # Hard Coded Globals
 colors = ["w", "b"]
@@ -55,18 +55,11 @@ for i in range(num_Episodes):
         # Choose an action
         # Check for policy, only if the action is a move -- we may need to optimize this
         if not jump and random.random() < epsilon:
-            '''
-            Sudo Code:
-            using epislon, determine if we want to use our policy or if we want random
-            if policy: find all the states that are avaliable given the current moves avaliable 
-            check each state to see if it is in our V and if so save that value
-            take the action that resulting in moving into the state that has the highest value
-            Maybe: Check an "all lowercase" board and see if we have the policy
-            '''
             knownStates = []
             for a in actions:
                 temp_state = makeMoves(state, agentColor, a)
                 try:
+                    # The temp_state may noy be in v. That is why we need to 'try' this
                     knownStates.append([a, v[str(temp_state)]])
                 except:
                     pass
