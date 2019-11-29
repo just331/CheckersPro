@@ -5,6 +5,7 @@ startCell = -1
 endCell = -1
 startMove = True
 endGame = Tk()  # Make GUI
+output = Tk()
 master = Tk()  # Make GUI
 
 
@@ -12,11 +13,12 @@ master = Tk()  # Make GUI
 def closeWindow():
     master.destroy()
     endGame.destroy()
+    output.destroy()
 
 
 def quitGame(self, message):
     endGame.title("End Game")  # Name Window
-    endGame.geometry("300x100")  # Resized endgame message window
+    endGame.geometry("250x100")  # Resized endgame message window
     engGame_Message = Message(endGame, text=message)
     engGame_Message.pack()
     # frame = Frame(endGame)
@@ -71,6 +73,8 @@ def playerLogic(cellCount, master, activeGame, agentColor):
                 return None
         else:
             user_move = [startCell, endCell]
+            label = Label(output, text="Player's move from: " + str(user_move[0]) + "to: " + str(user_move[1]) + "\n")
+            label.pack()
             validMove = False  # Assume the move is invalid
             # Make sure move is valid
             while not validMove:
@@ -109,6 +113,8 @@ def agentLogic(master, activeGame, agentColor):
             move = random.choice(possibleJumps)
             activeGame = jumpUpdate(activeGame, move[0], move[1], move[2], agentColor)
             possibleJumps = checkForJumps(activeGame, "agent", agentColor)
+            label = Label(output, text="Agent's move from: " + str(move[0]) + "to: " + str(move[2]) + "\n")
+            label.pack()
             if len(possibleJumps) == 0:
                 foundJump = False
     else:  # No jumps available
@@ -159,4 +165,6 @@ def main():
     activeGame = startGame(agentColor)
     master.title("CheckerPro")  # Name Window
     printGUI(master, activeGame, agentColor)  # Print Start Board and start the actual game
+    output.title("Agent/Player Moves")
+    output.mainloop()
     master.mainloop()  # Keep window open

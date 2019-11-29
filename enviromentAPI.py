@@ -62,7 +62,7 @@ import random
 value_dic = {"ownMan": 1, "ownKing": 1.5, "enemyMan": -1.5, "enemyKing": -3}
 
 # Hard Coded Logic
-gameBoard = np.zeros(32)   # Empty board
+gameBoard = np.zeros(32)  # Empty board
 
 # Unfortunately, we have not been able to come up with a more sophisticated representation of valid moves
 blackMoves = {0: [4, 5], 1: [5, 6], 2: [6, 7], 3: [7], 4: [8], 5: [8, 9], 6: [9, 10], 7: [10, 11], 8: [12, 13],
@@ -84,8 +84,9 @@ kingMoves = {0: [4, 5], 1: [5, 6], 2: [6, 7], 3: [7], 4: [0, 8], 5: [0, 1, 8, 9]
 
 # Important cells.
 edgeCells = [0, 1, 2, 3, 4, 11, 12, 19, 20, 27, 28, 29, 30, 31]
-blackEndZone = [0, 1, 2, 3]      # White piece turns to king when it reaches the end zone.
+blackEndZone = [0, 1, 2, 3]  # White piece turns to king when it reaches the end zone.
 whiteEndZone = [28, 29, 30, 31]  # Black piece turns to king when it reaches the end zone.
+
 
 # Helper Functions ----------
 
@@ -174,7 +175,6 @@ def createEnviroment(color):
 
 #  Note: There could be a scenario where the random board is already in an end game state
 def createRandomEnviroment(color, kingPob):
-
     numAgent, numPlayer = 0, 0  # NOTE: There can only be a maximum of 12 pieces for either color
 
     returnBoard = gameBoard.copy()  # Make an empty game board
@@ -199,7 +199,7 @@ def createRandomEnviroment(color, kingPob):
             numAgent += 1
         elif square == 2 and numPlayer < 13:
             # Step 1) Check if we are trying to place a piece in a position where it must be a king
-            if color.lower() == "w" and i in whiteEndZone:    # Inverted because the agent is the opposite color
+            if color.lower() == "w" and i in whiteEndZone:  # Inverted because the agent is the opposite color
                 returnBoard[i] = value_dic["enemyKing"]
             elif color.lower() == "b" and i in blackEndZone:  # Inverted because the agent is the opposite color
                 returnBoard[i] = value_dic["enemyKing"]
