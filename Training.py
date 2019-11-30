@@ -8,9 +8,9 @@ import pickle
 
 # Parameters
 # Total number of runs will be num_saves * num_Episodes_per_Save
-num_saves = 10
+num_saves = 5
 percent_20 = num_saves//5
-num_Episodes_per_Save = 1#1000000
+num_Episodes_per_Save = 1000000
 discount = 1              # Not sure what we should do here. Currently keeping 1.
 epsilon = .1              # Coefficient of exploration. epsilon = 0 is pure greedy, = 1 is pure exploration
 # --------------------------
@@ -127,14 +127,14 @@ for x in range(num_saves):
         g = 0
         for tg in range(len(episode_reward) - 1, -1, -1):
             g = discount * g + episode_reward[tg]
-            # print("Itteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
+            # print("Iteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
             if episode_state.index(episode_state[tg]) == tg:
                 if str(episode_state[tg]) in returns:
-                    returns[str(episode_state[tg])].append(g)
+                    returns[str(episode_state[tg])][0] += g  # Sum
+                    returns[str(episode_state[tg])][1] += 1  # Count
                 else:
-                    returns[str(episode_state[tg])] = [g]
-                v[str(episode_state[tg])] = sum(returns[str(episode_state[tg])]) / \
-                                       len(returns[str(episode_state[tg])])
+                    returns[str(episode_state[tg])] = [g, 1]
+                v[str(episode_state[tg])] = returns[str(episode_state[tg])][0] / returns[str(episode_state[tg])][1]
 
     # End of this save iteration, therefore we need to save
     # --- Save values ---

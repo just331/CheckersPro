@@ -137,14 +137,14 @@ for index, row in historicalData.iterrows():
         g = 0
         for tg in range(len(episode_reward) - 1, -1, -1):
             g = discount * g + episode_reward[tg]
-            # print("Itteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
+            # print("Iteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
             if episode_state.index(episode_state[tg]) == tg:
                 if str(episode_state[tg]) in returns:
-                    returns[str(episode_state[tg])].append(g)
+                    returns[str(episode_state[tg])][0] += g  # Sum
+                    returns[str(episode_state[tg])][1] += 1  # Count
                 else:
-                    returns[str(episode_state[tg])] = [g]
-                v[str(episode_state[tg])] = sum(returns[str(episode_state[tg])]) / \
-                                       len(returns[str(episode_state[tg])])
+                    returns[str(episode_state[tg])] = [g, 1]
+                v[str(episode_state[tg])] = returns[str(episode_state[tg])][0] / returns[str(episode_state[tg])][1]
 
     # print("number actions", actionNumber)
 
@@ -232,14 +232,14 @@ for index, row in historicalData.iterrows():
         g = 0
         for tg in range(len(episode_reward) - 1, -1, -1):
             g = discount * g + episode_reward[tg]
-            # print("Itteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
+            # print("Iteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
             if episode_state.index(episode_state[tg]) == tg:
                 if str(episode_state[tg]) in returns:
-                    returns[str(episode_state[tg])].append(g)
+                    returns[str(episode_state[tg])][0] += g  # Sum
+                    returns[str(episode_state[tg])][1] += 1  # Count
                 else:
-                    returns[str(episode_state[tg])] = [g]
-                v[str(episode_state[tg])] = sum(returns[str(episode_state[tg])]) / \
-                                       len(returns[str(episode_state[tg])])
+                    returns[str(episode_state[tg])] = [g, 1]
+                v[str(episode_state[tg])] = returns[str(episode_state[tg])][0] / returns[str(episode_state[tg])][1]
 
 
 
@@ -250,11 +250,3 @@ with open('Pickles/returns_starting.pkl', 'wb') as handle_r:
 
 with open('Pickles/v_starting.pkl', 'wb') as handle_v:
     pickle.dump(v, handle_v)
-
-
-
-# TODO: Wednesday
-'''
-We still need to care about the opponenets moves as they effect the game board 
-We also need to rerun this logic with the agent being black
-'''
