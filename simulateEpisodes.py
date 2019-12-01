@@ -18,8 +18,10 @@ Therefore, we need to subtract 1 from the historical data
 historicalData = pd.read_pickle("Pickles/games_df.p")
 
 discount = 1
-returns = {}
-v = {}
+WHITE_returns = {}
+WHITE_v = {}
+BLACK_returns = {}
+BLACK_v = {}
 
 
 def getMoveObject(a, s):
@@ -147,12 +149,13 @@ for index, row in historicalData.iterrows():
             g = discount * g + episode_reward[tg]
             # print("Iteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
             if episode_state.index(episode_state[tg]) == tg:
-                if str(episode_state[tg]) in returns:
-                    returns[str(episode_state[tg])][0] += g  # Sum
-                    returns[str(episode_state[tg])][1] += 1  # Count
+                if str(episode_state[tg]) in WHITE_returns:
+                    WHITE_returns[str(episode_state[tg])][0] += g  # Sum
+                    WHITE_returns[str(episode_state[tg])][1] += 1  # Count
                 else:
-                    returns[str(episode_state[tg])] = [g, 1]
-                v[str(episode_state[tg])] = returns[str(episode_state[tg])][0] / returns[str(episode_state[tg])][1]
+                    WHITE_returns[str(episode_state[tg])] = [g, 1]
+                WHITE_v[str(episode_state[tg])] = WHITE_returns[str(episode_state[tg])][0] / \
+                                                  WHITE_returns[str(episode_state[tg])][1]
 
 print("Moving")
 # ------------------------------------------------------------------------
@@ -239,13 +242,19 @@ for index, row in historicalData.iterrows():
             g = discount * g + episode_reward[tg]
             # print("Iteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
             if episode_state.index(episode_state[tg]) == tg:
-                if str(episode_state[tg]) in returns:
-                    returns[str(episode_state[tg])][0] += g  # Sum
-                    returns[str(episode_state[tg])][1] += 1  # Count
+                if str(episode_state[tg]) in BLACK_returns:
+                    BLACK_returns[str(episode_state[tg])][0] += g  # Sum
+                    BLACK_returns[str(episode_state[tg])][1] += 1  # Count
                 else:
-                    returns[str(episode_state[tg])] = [g, 1]
-                v[str(episode_state[tg])] = returns[str(episode_state[tg])][0] / returns[str(episode_state[tg])][1]
+                    BLACK_returns[str(episode_state[tg])] = [g, 1]
+                BLACK_v[str(episode_state[tg])] = BLACK_returns[str(episode_state[tg])][0] / \
+                                                  BLACK_returns[str(episode_state[tg])][1]
 
-joblib.dump(returns, 'Pickles/returns_starting.sav')
+# Save the results
+joblib.dump(WHITE_returns, 'Pickles/WHITE_returns_starting.sav')
 
-joblib.dump(v, 'Pickles/v_starting.sav')
+joblib.dump(WHITE_v, 'Pickles/WHITE_v_starting.sav')
+# -------
+joblib.dump(BLACK_returns, 'Pickles/BLACK_returns_starting.sav')
+
+joblib.dump(BLACK_v, 'Pickles/BLACK_v_starting.sav')
