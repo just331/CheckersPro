@@ -421,4 +421,21 @@ def checkEndGame(board, color):
 
 
 def shouldSave(board):
-    print("TODO")
+    '''
+    This function is to prevent the collection of 'end' state moves
+    When a player has less than 3 pieces the scenarios are most likely a decisive win
+    OR both players running around the board creating states that may never be used again
+    Therefore, we are ignoring these end states
+    '''
+
+    agentMan = (board == value_dic["ownMan"]).sum()
+    agentKing = (board == value_dic["ownKing"]).sum()
+    opponentMan = (board == value_dic["enemyMan"]).sum()
+    opponentKing = (board == value_dic["enemyKing"]).sum()
+
+    if agentMan + agentKing < 3:
+        return False
+    elif opponentMan + opponentKing < 3:
+        return False
+    else:
+        return True

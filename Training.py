@@ -76,9 +76,9 @@ for x in range(num_saves):
 
         # Temporary Storage
         episode_state = []
-        episode_action = []
         episode_reward = []
-        episode_state.append(state)  # Start State
+        if shouldSave(state):
+            episode_state.append(str(state))
 
         while True:
             # Collect all of the possible actions
@@ -127,8 +127,8 @@ for x in range(num_saves):
             # Collect the reward. ONLY to see if the game is over
             reward = checkEndGame(state, agentColor)
 
-            episode_action.append(action)
-            episode_state.append(str(state))
+            if shouldSave(state):
+                episode_state.append(str(state))
 
             if reward != 0:  # Either a win or loss
                 episode_reward.append(reward)
@@ -143,9 +143,11 @@ for x in range(num_saves):
                     break
 
         # Calculate g -- This may need to be revised / optimized
+        updated_episode_reward = np.zeros(len(episode_state))
+        updated_episode_reward[len(updated_episode_reward)-1] = episode_reward[len(episode_reward)-1]
         g = 0
-        for tg in range(len(episode_reward) - 1, -1, -1):
-            g = discount * g + episode_reward[tg]
+        for tg in range(len(updated_episode_reward) - 1, -1, -1):
+            g = discount * g + updated_episode_reward[tg]
             if agentColor == "w":
                 if episode_state.index(episode_state[tg]) == tg:
                     if str(episode_state[tg]) in WHITE_returns:

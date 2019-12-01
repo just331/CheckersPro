@@ -80,7 +80,8 @@ for index, row in historicalData.iterrows():
 
     # Temporary Storage
     episode_state = []
-    episode_state.append(state)  # Start State
+    if shouldSave(state):
+        episode_state.append(str(state))
 
     actionNumber = 0
     skip = False
@@ -134,7 +135,8 @@ for index, row in historicalData.iterrows():
             discard, state = makeJumps(state, "w", jumpObject, player="Agent")
 
         # Step 3: Save the state
-        episode_state.append(str(state))
+        if shouldSave(state):
+            episode_state.append(str(state))
 
         # Step 4: Move to next move
         actionNumber += 1
@@ -176,7 +178,8 @@ for index, row in historicalData.iterrows():
 
     # Temporary Storage
     episode_state = []
-    episode_state.append(state)  # Start State
+    if shouldSave(state):
+        episode_state.append(str(state))
 
     actionNumber = 0
     skip = False
@@ -204,8 +207,8 @@ for index, row in historicalData.iterrows():
             discard, state = makeJumps(state, "b", jumpObject, player="Agent")
 
         # Step 2: Save the state
-        # print(state)
-        episode_state.append(str(state))
+        if shouldSave(state):
+            episode_state.append(str(state))
 
         # Step 3: Take a step in the environment
         try:
