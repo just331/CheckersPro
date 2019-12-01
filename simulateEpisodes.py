@@ -1,7 +1,12 @@
+'''
+Currently there is a small issue where a blank state is being created for basically every iteration
+this does not really effect the program but is something we should look at if we have time
+'''
+
 import pandas as pd
 import numpy as np
 import re
-import pickle
+import joblib
 from enviromentAPI import *
 
 '''
@@ -87,6 +92,7 @@ for index, row in historicalData.iterrows():
 
         if re.search(r'-', action):  # This is a move
             moveObject = getMoveObject(action, state)
+            # Error collecting the move object. Abort
             if len(moveObject) == 0:
                 skip = True
                 break
@@ -94,6 +100,7 @@ for index, row in historicalData.iterrows():
         # if not move, then jump
         else:
             jumpObject = getJumpObject(action, state, "w", "Opponent")
+            # Error collecting the jump object. Abort
             if len(jumpObject) == 0:
                 skip = True
                 break
@@ -109,6 +116,7 @@ for index, row in historicalData.iterrows():
 
         if re.search(r'-', action):  # This is a move
             moveObject = getMoveObject(action, state)
+            # Error collecting the move object. Abort
             if len(moveObject) == 0:
                 skip = True
                 break
@@ -116,6 +124,7 @@ for index, row in historicalData.iterrows():
         # if not move, then jump
         else:
             jumpObject = getJumpObject(action, state, "w", "Agent")
+            # Error collecting the jump object. Abort
             if len(jumpObject) == 0:
                 skip = True
                 break
@@ -123,7 +132,6 @@ for index, row in historicalData.iterrows():
             discard, state = makeJumps(state, "w", jumpObject, player="Agent")
 
         # Step 3: Save the state
-        # print(state)
         episode_state.append(str(state))
 
         # Step 4: Move to next move
@@ -146,8 +154,7 @@ for index, row in historicalData.iterrows():
                     returns[str(episode_state[tg])] = [g, 1]
                 v[str(episode_state[tg])] = returns[str(episode_state[tg])][0] / returns[str(episode_state[tg])][1]
 
-    # print("number actions", actionNumber)
-
+print("Moving")
 # ------------------------------------------------------------------------
 
 # run through the number of episodes -as black
@@ -219,8 +226,6 @@ for index, row in historicalData.iterrows():
             # Make jump returns the new state AFTER checking for kings
             discard, state = makeJumps(state, "b", jumpObject, player="Opponent")
 
-
-
         # Step 4: Move to next move
         actionNumber += 1
 
@@ -241,12 +246,6 @@ for index, row in historicalData.iterrows():
                     returns[str(episode_state[tg])] = [g, 1]
                 v[str(episode_state[tg])] = returns[str(episode_state[tg])][0] / returns[str(episode_state[tg])][1]
 
+joblib.dump(returns, 'Pickles/returns_starting.sav')
 
-
-#print_dict(v)
-
-with open('Pickles/returns_starting.pkl', 'wb') as handle_r:
-    pickle.dump(returns, handle_r)
-
-with open('Pickles/v_starting.pkl', 'wb') as handle_v:
-    pickle.dump(v, handle_v)
+joblib.dump(v, 'Pickles/v_starting.sav')

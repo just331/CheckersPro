@@ -3,14 +3,14 @@ import numpy as np
 import random
 from enviromentAPI import *
 from os import path
-import pickle
+import joblib
 # --------------------------
 
 # Parameters
 # Total number of runs will be num_saves * num_Episodes_per_Save
 num_saves = 5
 percent_20 = num_saves//5
-num_Episodes_per_Save = 1000000
+num_Episodes_per_Save = 10000
 discount = 1              # Not sure what we should do here. Currently keeping 1.
 epsilon = .1              # Coefficient of exploration. epsilon = 0 is pure greedy, = 1 is pure exploration
 # --------------------------
@@ -21,19 +21,19 @@ type_Episodes = ["Normal", "Random"]
 # --------------------------
 
 # Global Storage
-if path.exists("Pickles/returns.pkl"):
+if path.exists("Pickles/returns.sav"):
     # Load what we've learned
-    returns = pickle.load(open("Pickles/returns.pkl", "rb"))
+    returns = joblib.load("Pickles/returns.sav", "rb")
 else:
     # If the returns dictionary does not exists, then, initialize returns to the dictionary created in simulations
-    returns = pickle.load(open("Pickles/returns_starting.pkl", "rb"))
+    returns = joblib.load("Pickles/returns_starting.sav", "rb")
 
-if path.exists("Pickles/v.pkl"):
+if path.exists("Pickles/v.sav"):
     # Load what we've learned
-    v = pickle.load(open("Pickles/v.pkl", "rb"))
+    v = joblib.load("Pickles/v.sav", "rb")
 else:
     # If the v dictionary does not exists, then, initialize v to the dictionary created in simulations
-    v = pickle.load(open("Pickles/v_starting.pkl", "rb"))
+    v = joblib.load("Pickles/v_starting.sav", "rb")
 # --------------------------
 
 # I want to periodically save results and v in case of a crash
@@ -138,26 +138,14 @@ for x in range(num_saves):
 
     # End of this save iteration, therefore we need to save
     # --- Save values ---
-    with open('Pickles/returns.pkl', 'wb') as handle_r:
-        pickle.dump(returns, handle_r)
+    joblib.dump(returns, 'Pickles/returns.sav')
 
-    with open('Pickles/v.pkl', 'wb') as handle_v:
-        pickle.dump(v, handle_v)
+    joblib.dump(v, 'Pickles/v.sav')
     # --------------------------
-
-# Printing
-#print("\nv")
-#print_dict(v)
-# for tempKey in v:
-#     if v[tempKey] != -1 and v[tempKey] != 1:
-#         print(v[tempKey])
-# --------------------------
 
 # Save again just to make sure before we close the program
 # --- Save values ---
-with open('Pickles/returns.pkl', 'wb') as handle_r:
-    pickle.dump(returns, handle_r)
+joblib.dump(returns, 'Pickles/returns.sav')
 
-with open('Pickles/v.pkl', 'wb') as handle_v:
-    pickle.dump(v, handle_v)
+joblib.dump(v, 'Pickles/v.sav')
 # --------------------------
