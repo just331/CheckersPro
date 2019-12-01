@@ -10,7 +10,7 @@ import joblib
 # Total number of runs will be num_saves * num_Episodes_per_Save
 num_saves = 5
 percent_20 = num_saves//5
-num_Episodes_per_Save = 10000
+num_Episodes_per_Save = 10
 discount = 1              # Not sure what we should do here. Currently keeping 1.
 epsilon = .1              # Coefficient of exploration. epsilon = 0 is pure greedy, = 1 is pure exploration
 # --------------------------
@@ -20,20 +20,35 @@ colors = ["w", "b"]
 type_Episodes = ["Normal", "Random"]
 # --------------------------
 
-# Global Storage
-if path.exists("Pickles/returns.sav"):
+# Global Storage -- WHITE
+if path.exists("Pickles/WHITE_returns.sav"):
     # Load what we've learned
-    returns = joblib.load("Pickles/returns.sav", "rb")
+    WHITE_returns = joblib.load("Pickles/WHITE_returns.sav", "rb")
 else:
     # If the returns dictionary does not exists, then, initialize returns to the dictionary created in simulations
-    returns = joblib.load("Pickles/returns_starting.sav", "rb")
+    WHITE_returns = joblib.load("Pickles/WHITE_returns_starting.sav", "rb")
 
-if path.exists("Pickles/v.sav"):
+if path.exists("Pickles/WHITE_v.sav"):
     # Load what we've learned
-    v = joblib.load("Pickles/v.sav", "rb")
+    WHITE_v = joblib.load("Pickles/WHITE_v.sav", "rb")
 else:
     # If the v dictionary does not exists, then, initialize v to the dictionary created in simulations
-    v = joblib.load("Pickles/v_starting.sav", "rb")
+    WHITE_v = joblib.load("Pickles/WHITE_v_starting.sav", "rb")
+# --------------------------
+# Global Storage -- BLACK
+if path.exists("Pickles/BLACK_returns.sav"):
+    # Load what we've learned
+    BLACK_returns = joblib.load("Pickles/BLACK_returns.sav", "rb")
+else:
+    # If the returns dictionary does not exists, then, initialize returns to the dictionary created in simulations
+    BLACK_returns = joblib.load("Pickles/BLACK_returns_starting.sav", "rb")
+
+if path.exists("Pickles/BLACK_v.sav"):
+    # Load what we've learned
+    BLACK_v = joblib.load("Pickles/BLACK_v.sav", "rb")
+else:
+    # If the v dictionary does not exists, then, initialize v to the dictionary created in simulations
+    BLACK_v = joblib.load("Pickles/BLACK_v_starting.sav", "rb")
 # --------------------------
 
 # I want to periodically save results and v in case of a crash
@@ -48,6 +63,7 @@ for x in range(num_saves):
     for i in range(num_Episodes_per_Save):
         # Choose the agent's color for this episode
         agentColor = random.choice(colors)
+
         # start a new episode
         if type_Episode == "Normal":
             state = createEnviroment(agentColor)
@@ -80,7 +96,10 @@ for x in range(num_saves):
                     temp_state = makeMoves(state, agentColor, a)
                     try:
                         # The temp_state may noy be in v. That is why we need to 'try' this
-                        knownStates.append([a, v[str(temp_state)]])
+                        if agentColor == "w":
+                            knownStates.append([a, WHITE_v[str(temp_state)]])
+                        else:
+                            knownStates.append([a, BLACK_v[str(temp_state)]])
                     except:
                         pass
                 # We know of at least one of the states available to us
@@ -127,25 +146,32 @@ for x in range(num_saves):
         g = 0
         for tg in range(len(episode_reward) - 1, -1, -1):
             g = discount * g + episode_reward[tg]
-            # print("Iteration: ", tg, "\nIndex: ", episode_state.index(episode_state[tg]))
-            if episode_state.index(episode_state[tg]) == tg:
-                if str(episode_state[tg]) in returns:
-                    returns[str(episode_state[tg])][0] += g  # Sum
-                    returns[str(episode_state[tg])][1] += 1  # Count
-                else:
-                    returns[str(episode_state[tg])] = [g, 1]
-                v[str(episode_state[tg])] = returns[str(episode_state[tg])][0] / returns[str(episode_state[tg])][1]
+            if agentColor == "w":
+                if episode_state.index(episode_state[tg]) == tg:
+                    if str(episode_state[tg]) in WHITE_returns:
+                        WHITE_returns[str(episode_state[tg])][0] += g  # Sum
+                        WHITE_returns[str(episode_state[tg])][1] += 1  # Count
+                    else:
+                        WHITE_returns[str(episode_state[tg])] = [g, 1]
+                    WHITE_v[str(episode_state[tg])] = WHITE_returns[str(episode_state[tg])][0] / \
+                                                      WHITE_returns[str(episode_state[tg])][1]
+            else:
+                if episode_state.index(episode_state[tg]) == tg:
+                    if str(episode_state[tg]) in BLACK_returns:
+                        BLACK_returns[str(episode_state[tg])][0] += g  # Sum
+                        BLACK_returns[str(episode_state[tg])][1] += 1  # Count
+                    else:
+                        BLACK_returns[str(episode_state[tg])] = [g, 1]
+                    BLACK_v[str(episode_state[tg])] = BLACK_returns[str(episode_state[tg])][0] / \
+                                                      BLACK_returns[str(episode_state[tg])][1]
 
     # End of this save iteration, therefore we need to save
     # --- Save values ---
-    joblib.dump(returns, 'Pickles/returns.sav')
+    joblib.dump(WHITE_returns, 'Pickles/WHITE_returns.sav')
 
-    joblib.dump(v, 'Pickles/v.sav')
+    joblib.dump(WHITE_v, 'Pickles/WHITE_v.sav')
+    # ----
+    joblib.dump(BLACK_returns, 'Pickles/BLACK_returns.sav')
+
+    joblib.dump(BLACK_v, 'Pickles/BLACK_v.sav')
     # --------------------------
-
-# Save again just to make sure before we close the program
-# --- Save values ---
-joblib.dump(returns, 'Pickles/returns.sav')
-
-joblib.dump(v, 'Pickles/v.sav')
-# --------------------------
