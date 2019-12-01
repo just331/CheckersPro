@@ -418,3 +418,7 @@ def checkEndGame(board, color):
         return -1.0
     else:
         return 0
+
+
+def shouldSave(board):
+    print("TODO")
