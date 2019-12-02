@@ -5,32 +5,32 @@ startCell = -1
 endCell = -1
 startMove = True
 endGame = Tk()  # Make GUI
+output = Tk()
 master = Tk()  # Make GUI
+
+# Set the window size for the GUI
+output.geometry("300x400")
 
 
 # Create button to end game after win or loss
 def closeWindow():
     master.destroy()
     endGame.destroy()
+    output.destroy()
 
 
 def quitGame(self, message):
     endGame.title("End Game")  # Name Window
-    endGame.geometry("300x100")  # Resized endgame message window
+    endGame.geometry("250x100")  # Resized endgame message window
     engGame_Message = Message(endGame, text=message)
     engGame_Message.pack()
-    # frame = Frame(endGame)
-    # frame.pack()
     button = Button(text="Exit Game!", command=closeWindow)
     button.pack()
     endGame.lift()
     endGame.mainloop()
-    # endGame.destroy()
-    # self.destroy()
 
 
-#  TODO: The player can actually move the agent pieces with the GUI
-#  TODO: Not sure about double jump logic
+#  TODO: When player has no available moves, the game should end (but doesn't)
 def playerLogic(cellCount, master, activeGame, agentColor):
     global startCell, endCell  # I know globals are the devil but this is the easier/best solution for this problem
     # Need to change this logic but currently some functions want to know the players color and not the agent color
@@ -95,19 +95,18 @@ def playerLogic(cellCount, master, activeGame, agentColor):
             agentLogic(master, activeGame, agentColor)
 
 
-# TODO: Jumps are forced and choose randomly ... Should let agent decide
-# TODO: Moves are chosen randomly
 def agentLogic(master, activeGame, agentColor):
     activeGame = checkForKing(activeGame, agentColor)  # See if these jumps resulted in a king
     possibleJumps = checkForJumps(activeGame, "agent", agentColor)  # Find all possible jumps
     possibleMoves = findMoves(activeGame, agentColor)
-    # TODO: Maybe allow agent to choose to not make a jump and give punishment
     if len(possibleJumps) > 0:
         foundJump = True
         while foundJump:
             move = random.choice(possibleJumps)
             activeGame = jumpUpdate(activeGame, move[0], move[1], move[2], agentColor)
             possibleJumps = checkForJumps(activeGame, "agent", agentColor)
+            label = Label(output, text="Agent's move from: " + str(move[0]) + "to: " + str(move[2]) + "\n")
+            label.pack()
             if len(possibleJumps) == 0:
                 foundJump = False
     else:  # No jumps available
@@ -150,12 +149,11 @@ def printGUI(master, activeGame, agentColor):
             blankSquare = not blankSquare
 
 
-# TODO: Include a buffer screen for the user to see the flow of the game
-# TODO: Have an endGame check using the predefined function
 def main():
-    # Who will be what color? ... Currently hard coding agent to be black every game (and go first)
     agentColor = 'black'
     activeGame = startGame(agentColor)
     master.title("CheckerPro")  # Name Window
     printGUI(master, activeGame, agentColor)  # Print Start Board and start the actual game
+    output.title("Agent's Moves")
+    output.mainloop()
     master.mainloop()  # Keep window open
