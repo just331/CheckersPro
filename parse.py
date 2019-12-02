@@ -4,7 +4,8 @@ import numpy as np
 import re
 
 # Pull in data
-raw_txt = open("raw.txt","r+")
+raw_txt = open("Data/raw.txt", "r+")
+
 
 # Part of understanding the file section and the board view are taken from the explanation in the dataset's repo
 # Understanding the file:
@@ -50,18 +51,20 @@ def getGames(raw_txt):
             tempString = ''
     return gameList
 
+
 def parseMoves(moves):
     # moves is a multi-line string. Need to standardize the string where there are only moves separated by a space
-    moves = re.sub(r'\n|\t|\r', ' ', moves) # Removes all new lines and tabs
-    moves = re.sub(r'\d*\.', ' ', moves)    # Removes the turn number
-    moves = re.sub(r'\s*1-0\s*$', '', moves)       # Removes Score
-    moves = re.sub(r'\s*0-1\s*$', '', moves)       # Removes Score
-    moves = re.sub(r'\s*1/2-1/2\s*$', '', moves)   # Removes Score
-    moves = re.sub(r' +', ' ', moves)       # Replaces multi-spaces with a single space
-    moves = re.sub(r'^ +', '', moves)       # Removes leading spaces
-    moves = re.sub(r' +$', '', moves)       # Removes trailing spaces
+    moves = re.sub(r'\n|\t|\r', ' ', moves)  # Removes all new lines and tabs
+    moves = re.sub(r'\d*\.', ' ', moves)  # Removes the turn number
+    moves = re.sub(r'\{.*\}', ' ', moves)  # Removes weird note in the moves
+    moves = re.sub(r'\s*1-0\s*$', '', moves)  # Removes Score
+    moves = re.sub(r'\s*0-1\s*$', '', moves)  # Removes Score
+    moves = re.sub(r'\s*1/2-1/2\s*$', '', moves)  # Removes Score
+    moves = re.sub(r' +', ' ', moves)  # Replaces multi-spaces with a single space
+    moves = re.sub(r'^ +', '', moves)  # Removes leading spaces
+    moves = re.sub(r' +$', '', moves)  # Removes trailing spaces
 
-    movesList = moves.split(' ')            # Since the moves are now standardized we can split them on a space
+    movesList = moves.split(' ')  # Since the moves are now standardized we can split them on a space
     blackMoves = []
     whiteMoves = []
     for i in range(0, len(movesList)):
@@ -78,15 +81,15 @@ def parseGames(gameList):
         lines = game.split("\n")  # text blob back into lines
         moves = ''  # Place holder string for the moves
         getMoves = False
-        for i in range(0,len(lines)):
-            if re.search(r'Result',lines[i]):  # Get winner
-                if re.search(r'1-0',lines[i]):
+        for i in range(0, len(lines)):
+            if re.search(r'Result', lines[i]):  # Get winner
+                if re.search(r'1-0', lines[i]):
                     winner = "Black"
-                elif re.search(r'0-1',lines[i]):
+                elif re.search(r'0-1', lines[i]):
                     winner = "White"
                 else:
                     winner = "Draw"
-            elif lines[i][0:2]=='1.':  # Start collecting moves
+            elif lines[i][0:2] == '1.':  # Start collecting moves
                 getMoves = True
             if getMoves == True:
                 moves = moves + " " + lines[i] + " "
@@ -97,15 +100,15 @@ def parseGames(gameList):
         parsedGames.append(gameInfo)
     return parsedGames
 
+
 games = getGames(raw_txt)
 
 parseGamesList = parseGames(games)
 
 games_df = pd.DataFrame.from_records(parseGamesList)
-games_df.columns=['BlackMoves','WhiteMoves','Winner']
+games_df.columns = ['BlackMoves', 'WhiteMoves', 'Winner']
 
 print(games_df.shape)
 print(games_df.head(1))
 
 games_df.to_pickle('Pickles/games_df.p')
-
