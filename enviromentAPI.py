@@ -88,6 +88,43 @@ blackEndZone = [0, 1, 2, 3]      # White piece turns to king when it reaches the
 whiteEndZone = [28, 29, 30, 31]  # Black piece turns to king when it reaches the end zone.
 
 # Helper Functions ----------
+def printBoard(activeBoard, agentColor):  # This will no longer be needed
+    cell_num = 0
+    blank = True
+    for i in range(8):
+        for j in range(8):
+            if blank:
+                print("|=|", end='')
+            else:
+                # The section below is very gross and should be changed but I am doing this for now
+                value = activeBoard[31 - cell_num]
+                if agentColor.lower() == 'w':
+                    if value == value_dic["ownMan"]:
+                        value_nm = 'W'
+                    elif value == value_dic["ownKing"]:
+                        value_nm = 'WK'
+                    elif value == value_dic["enemyMan"]:
+                        value_nm = 'B'
+                    elif value == value_dic["enemyKing"]:
+                        value_nm = 'BK'
+                    else:
+                        value_nm = "-"
+                elif agentColor.lower() == 'b':
+                    if value == value_dic["ownMan"]:
+                        value_nm = 'B'
+                    elif value == value_dic["ownKing"]:
+                        value_nm = 'BK'
+                    elif value == value_dic["enemyMan"]:
+                        value_nm = 'W'
+                    elif value == value_dic["enemyKing"]:
+                        value_nm = 'WK'
+                    else:
+                        value_nm = "-"
+                print("|" + str(value_nm) + "|", end='')
+                cell_num += 1
+            blank = not blank
+        blank = not blank
+        print("\n")
 
 
 def print_dict(a_dict):
@@ -96,9 +133,12 @@ def print_dict(a_dict):
         print(key, ':', a_dict[key])
 
 
-def checkForKing(board, color):
+def checkForKing(inputState, color):
     color = color.lower()  # Reducing the number of times I have to write that
     # Cycle through all cells on the board
+
+    board = inputState.copy()
+
     for cellNum in range(len(board)):
         # If we find a normal 'man' piece that belongs to the agent
         if board[cellNum] == value_dic["ownMan"]:
@@ -332,11 +372,13 @@ def getMoves(board, color, player="Agent"):
     return possibleMoves
 
 
-def makeJumps(board, color, jumpObject, player="Agent"):
+def makeJumps(inputState, color, jumpObject, player="Agent"):
     oldSpot = jumpObject[0]
     newSpot = jumpObject[1]
     remove = jumpObject[2]
     value = jumpObject[3]
+
+    board = inputState.copy()
 
     # Step 1) Make the jump ... because this jump was made internally, we know it is a legal jump
     board[oldSpot] = 0
@@ -350,10 +392,12 @@ def makeJumps(board, color, jumpObject, player="Agent"):
     return getJumps(board, color, player), board
 
 
-def makeMoves(board, color, moveObject):
+def makeMoves(inputState, color, moveObject):
     oldSpot = moveObject[0]
     newSpot = moveObject[1]
     value = moveObject[2]
+
+    board = inputState.copy()
 
     # Step 1) Make the move ... because this move was made internally, we know it is a legal move
     board[oldSpot] = 0
