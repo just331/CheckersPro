@@ -30,7 +30,6 @@ def quitGame(self, message):
     endGame.mainloop()
 
 
-#  TODO: When player has no available moves, the game should end (but doesn't)
 def playerLogic(cellCount, master, activeGame, agentColor):
     global startCell, endCell  # I know globals are the devil but this is the easier/best solution for this problem
     # Need to change this logic but currently some functions want to know the players color and not the agent color
