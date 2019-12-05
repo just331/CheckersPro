@@ -6,7 +6,6 @@ import re
 # Pull in data
 raw_txt = open("Data/raw.txt", "r+")
 
-
 # Part of understanding the file section and the board view are taken from the explanation in the dataset's repo
 # Understanding the file:
 # Example:
@@ -51,20 +50,19 @@ def getGames(raw_txt):
             tempString = ''
     return gameList
 
-
 def parseMoves(moves):
     # moves is a multi-line string. Need to standardize the string where there are only moves separated by a space
-    moves = re.sub(r'\n|\t|\r', ' ', moves)  # Removes all new lines and tabs
-    moves = re.sub(r'\d*\.', ' ', moves)  # Removes the turn number
-    moves = re.sub(r'\{.*\}', ' ', moves)  # Removes weird note in the moves
-    moves = re.sub(r'\s*1-0\s*$', '', moves)  # Removes Score
-    moves = re.sub(r'\s*0-1\s*$', '', moves)  # Removes Score
-    moves = re.sub(r'\s*1/2-1/2\s*$', '', moves)  # Removes Score
-    moves = re.sub(r' +', ' ', moves)  # Replaces multi-spaces with a single space
-    moves = re.sub(r'^ +', '', moves)  # Removes leading spaces
-    moves = re.sub(r' +$', '', moves)  # Removes trailing spaces
+    moves = re.sub(r'\n|\t|\r', ' ', moves)        # Removes all new lines and tabs
+    moves = re.sub(r'\d*\.', ' ', moves)           # Removes the turn number
+    moves = re.sub(r'\{.*\}', ' ', moves)         # Removes weird note in the moves
+    moves = re.sub(r'\s*1-0\s*$', '', moves)       # Removes Score
+    moves = re.sub(r'\s*0-1\s*$', '', moves)       # Removes Score
+    moves = re.sub(r'\s*1/2-1/2\s*$', '', moves)   # Removes Score
+    moves = re.sub(r' +', ' ', moves)              # Replaces multi-spaces with a single space
+    moves = re.sub(r'^ +', '', moves)              # Removes leading spaces
+    moves = re.sub(r' +$', '', moves)              # Removes trailing spaces
 
-    movesList = moves.split(' ')  # Since the moves are now standardized we can split them on a space
+    movesList = moves.split(' ') # Since the moves are now standardized we can split them on a space
     blackMoves = []
     whiteMoves = []
     for i in range(0, len(movesList)):
@@ -99,7 +97,6 @@ def parseGames(gameList):
         gameInfo = [blackMoves, whiteMoves, winner]
         parsedGames.append(gameInfo)
     return parsedGames
-
 
 games = getGames(raw_txt)
 
