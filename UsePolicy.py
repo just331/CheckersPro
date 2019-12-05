@@ -6,7 +6,7 @@ from os import path
 import joblib
 # --------------------------
 
-# Load Policy
+# Load Policy - Set to blank for random vs random
 WHITE_v = joblib.load("Pickles/WHITE_v.sav", "rb")
 BLACK_v = joblib.load("Pickles/BLACK_v.sav", "rb")
 # --------------------------
