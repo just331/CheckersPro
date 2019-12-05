@@ -1,8 +1,6 @@
 # Imports
-import numpy as np
 import random
 from enviromentAPI import *
-from os import path
 import joblib
 # --------------------------
 
